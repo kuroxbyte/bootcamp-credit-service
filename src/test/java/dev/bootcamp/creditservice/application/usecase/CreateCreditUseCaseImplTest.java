@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import dev.bootcamp.creditservice.application.port.CreditRepository;
@@ -71,5 +72,17 @@ class CreateCreditUseCaseImplTest {
 
         verify(creditRepository, never()).existsByCustomerIdAndType(any(), any());
         verify(creditRepository, times(2)).save(any(Credit.class));
+    }
+
+    @Test
+    void doesNotRequireBankAccount() {
+        when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
+
+        useCase.execute(1L, CreditType.CREDIT_CARD);
+
+        // Solo se consulta al cliente; no hay consulta a cuentas bancarias.
+        verify(customerClient).findById(1L);
+        verify(creditRepository).save(any(Credit.class));
+        verifyNoMoreInteractions(customerClient, creditRepository);
     }
 }

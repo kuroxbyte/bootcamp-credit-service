@@ -13,6 +13,7 @@ import dev.bootcamp.creditservice.domain.model.credit.CreditType;
  *   <li>Crédito personal: solo para clientes personales y máximo uno por persona.</li>
  *   <li>Crédito empresarial: solo para clientes empresariales, sin límite por empresa.</li>
  *   <li>Tarjeta de crédito: para clientes personales o empresariales.</li>
+ *   <li>No se exige que el cliente tenga una cuenta bancaria en la institución.</li>
  * </ul>
  */
 public interface CreateCreditUseCase {

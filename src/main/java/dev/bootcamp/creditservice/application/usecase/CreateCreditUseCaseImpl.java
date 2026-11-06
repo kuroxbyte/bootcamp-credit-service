@@ -17,7 +17,7 @@ public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     }
 
     @Override
-    public Credit execute(Long customerId, CreditType type) {
+    public Credit execute(String customerId, CreditType type) {
         Customer customer = customerClient.findById(customerId)
                 .orElseThrow(() -> new BusinessRuleException("El cliente no existe"));
         Credit credit = new Credit(customer, type);

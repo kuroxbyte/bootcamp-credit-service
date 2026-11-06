@@ -38,49 +38,49 @@ class CreateCreditCardUseCaseImplTest {
 
     @Test
     void rejectsUnknownCustomer() {
-        when(customerClient.findById(99L)).thenReturn(Optional.empty());
+        when(customerClient.findById("99")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.execute(99L, LIMIT))
+        assertThatThrownBy(() -> useCase.execute("99", LIMIT))
                 .isInstanceOf(BusinessRuleException.class);
         verify(creditCardRepository, never()).save(any());
     }
 
     @Test
     void createsCardForPersonalCustomer() {
-        when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
+        when(customerClient.findById("1")).thenReturn(Optional.of(new Customer("1", CustomerType.PERSONAL)));
         when(creditCardRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        CreditCard card = useCase.execute(1L, LIMIT);
+        CreditCard card = useCase.execute("1", LIMIT);
 
         assertThat(card.getCreditLimit()).isEqualByComparingTo(LIMIT);
     }
 
     @Test
     void createsCardForBusinessCustomer() {
-        when(customerClient.findById(2L)).thenReturn(Optional.of(new Customer(2L, CustomerType.BUSINESS)));
+        when(customerClient.findById("2")).thenReturn(Optional.of(new Customer("2", CustomerType.BUSINESS)));
 
-        useCase.execute(2L, LIMIT);
+        useCase.execute("2", LIMIT);
 
         verify(creditCardRepository).save(any(CreditCard.class));
     }
 
     @Test
     void doesNotSaveCardWithoutPositiveCreditLimit() {
-        when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
+        when(customerClient.findById("1")).thenReturn(Optional.of(new Customer("1", CustomerType.PERSONAL)));
 
-        assertThatThrownBy(() -> useCase.execute(1L, BigDecimal.ZERO))
+        assertThatThrownBy(() -> useCase.execute("1", BigDecimal.ZERO))
                 .isInstanceOf(BusinessRuleException.class);
         verify(creditCardRepository, never()).save(any());
     }
 
     @Test
     void doesNotRequireBankAccount() {
-        when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
+        when(customerClient.findById("1")).thenReturn(Optional.of(new Customer("1", CustomerType.PERSONAL)));
 
-        useCase.execute(1L, LIMIT);
+        useCase.execute("1", LIMIT);
 
         // Solo se consulta al cliente; no hay consulta a cuentas bancarias.
-        verify(customerClient).findById(1L);
+        verify(customerClient).findById("1");
         verify(creditCardRepository).save(any(CreditCard.class));
         verifyNoMoreInteractions(customerClient, creditCardRepository);
     }

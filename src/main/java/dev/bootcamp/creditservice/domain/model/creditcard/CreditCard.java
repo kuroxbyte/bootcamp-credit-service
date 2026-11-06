@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 public class CreditCard {
     @Setter
-    private Long id;
+    private String id;
     private final Customer customer;
     private final BigDecimal creditLimit;
 

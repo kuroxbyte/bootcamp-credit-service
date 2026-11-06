@@ -15,15 +15,15 @@ class CreditCardTest {
 
     @Test
     void allowedForPersonalOrBusinessCustomers() {
-        assertThatCode(() -> new CreditCard(new Customer(1L, CustomerType.PERSONAL), LIMIT))
+        assertThatCode(() -> new CreditCard(new Customer("1", CustomerType.PERSONAL), LIMIT))
                 .doesNotThrowAnyException();
-        assertThatCode(() -> new CreditCard(new Customer(2L, CustomerType.BUSINESS), LIMIT))
+        assertThatCode(() -> new CreditCard(new Customer("2", CustomerType.BUSINESS), LIMIT))
                 .doesNotThrowAnyException();
     }
 
     @Test
     void requiresPositiveCreditLimit() {
-        Customer customer = new Customer(1L, CustomerType.PERSONAL);
+        Customer customer = new Customer("1", CustomerType.PERSONAL);
 
         assertThatThrownBy(() -> new CreditCard(customer, null))
                 .isInstanceOf(BusinessRuleException.class);

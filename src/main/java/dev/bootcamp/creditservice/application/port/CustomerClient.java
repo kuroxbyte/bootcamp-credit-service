@@ -5,5 +5,5 @@ import java.util.Optional;
 
 /** Consulta de clientes en customer-service. */
 public interface CustomerClient {
-    Optional<Customer> findById(Long customerId);
+    Optional<Customer> findById(String customerId);
 }

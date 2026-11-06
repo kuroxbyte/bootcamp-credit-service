@@ -17,7 +17,7 @@ public class CreateCreditCardUseCaseImpl implements CreateCreditCardUseCase {
     }
 
     @Override
-    public CreditCard execute(Long customerId, BigDecimal creditLimit) {
+    public CreditCard execute(String customerId, BigDecimal creditLimit) {
         Customer customer = customerClient.findById(customerId)
                 .orElseThrow(() -> new BusinessRuleException("El cliente no existe"));
         return creditCardRepository.save(new CreditCard(customer, creditLimit));

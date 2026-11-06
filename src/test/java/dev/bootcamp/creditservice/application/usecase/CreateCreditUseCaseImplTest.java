@@ -36,39 +36,39 @@ class CreateCreditUseCaseImplTest {
 
     @Test
     void rejectsUnknownCustomer() {
-        when(customerClient.findById(99L)).thenReturn(Optional.empty());
+        when(customerClient.findById("99")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.execute(99L, CreditType.BUSINESS))
+        assertThatThrownBy(() -> useCase.execute("99", CreditType.BUSINESS))
                 .isInstanceOf(BusinessRuleException.class);
         verify(creditRepository, never()).save(any());
     }
 
     @Test
     void createsFirstPersonalCredit() {
-        when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
-        when(creditRepository.existsByCustomerIdAndType(1L, CreditType.PERSONAL)).thenReturn(false);
+        when(customerClient.findById("1")).thenReturn(Optional.of(new Customer("1", CustomerType.PERSONAL)));
+        when(creditRepository.existsByCustomerIdAndType("1", CreditType.PERSONAL)).thenReturn(false);
 
-        useCase.execute(1L, CreditType.PERSONAL);
+        useCase.execute("1", CreditType.PERSONAL);
 
         verify(creditRepository).save(any(Credit.class));
     }
 
     @Test
     void rejectsSecondPersonalCredit() {
-        when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
-        when(creditRepository.existsByCustomerIdAndType(1L, CreditType.PERSONAL)).thenReturn(true);
+        when(customerClient.findById("1")).thenReturn(Optional.of(new Customer("1", CustomerType.PERSONAL)));
+        when(creditRepository.existsByCustomerIdAndType("1", CreditType.PERSONAL)).thenReturn(true);
 
-        assertThatThrownBy(() -> useCase.execute(1L, CreditType.PERSONAL))
+        assertThatThrownBy(() -> useCase.execute("1", CreditType.PERSONAL))
                 .isInstanceOf(BusinessRuleException.class);
         verify(creditRepository, never()).save(any());
     }
 
     @Test
     void allowsMultipleBusinessCredits() {
-        when(customerClient.findById(2L)).thenReturn(Optional.of(new Customer(2L, CustomerType.BUSINESS)));
+        when(customerClient.findById("2")).thenReturn(Optional.of(new Customer("2", CustomerType.BUSINESS)));
 
-        useCase.execute(2L, CreditType.BUSINESS);
-        useCase.execute(2L, CreditType.BUSINESS);
+        useCase.execute("2", CreditType.BUSINESS);
+        useCase.execute("2", CreditType.BUSINESS);
 
         verify(creditRepository, never()).existsByCustomerIdAndType(any(), any());
         verify(creditRepository, times(2)).save(any(Credit.class));
@@ -76,12 +76,12 @@ class CreateCreditUseCaseImplTest {
 
     @Test
     void doesNotRequireBankAccount() {
-        when(customerClient.findById(2L)).thenReturn(Optional.of(new Customer(2L, CustomerType.BUSINESS)));
+        when(customerClient.findById("2")).thenReturn(Optional.of(new Customer("2", CustomerType.BUSINESS)));
 
-        useCase.execute(2L, CreditType.BUSINESS);
+        useCase.execute("2", CreditType.BUSINESS);
 
         // Solo se consulta al cliente; no hay consulta a cuentas bancarias.
-        verify(customerClient).findById(2L);
+        verify(customerClient).findById("2");
         verify(creditRepository).save(any(Credit.class));
         verifyNoMoreInteractions(customerClient, creditRepository);
     }

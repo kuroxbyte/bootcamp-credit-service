@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 
 class CreditTest {
 
-    private static final Customer PERSONAL = new Customer(1L, CustomerType.PERSONAL);
-    private static final Customer BUSINESS = new Customer(2L, CustomerType.BUSINESS);
+    private static final Customer PERSONAL = new Customer("1", CustomerType.PERSONAL);
+    private static final Customer BUSINESS = new Customer("2", CustomerType.BUSINESS);
 
     @Test
     void personalCreditOnlyForPersonalCustomers() {

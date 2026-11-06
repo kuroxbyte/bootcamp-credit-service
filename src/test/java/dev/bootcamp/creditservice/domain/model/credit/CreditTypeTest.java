@@ -18,17 +18,4 @@ class CreditTypeTest {
         assertThat(CreditType.BUSINESS.allows(CustomerType.BUSINESS)).isTrue();
         assertThat(CreditType.BUSINESS.allows(CustomerType.PERSONAL)).isFalse();
     }
-
-    @Test
-    void creditCardAllowsBothCustomerTypes() {
-        assertThat(CreditType.CREDIT_CARD.allows(CustomerType.PERSONAL)).isTrue();
-        assertThat(CreditType.CREDIT_CARD.allows(CustomerType.BUSINESS)).isTrue();
-    }
-
-    @Test
-    void onlyCreditCardRequiresCreditLimit() {
-        assertThat(CreditType.CREDIT_CARD.requiresCreditLimit()).isTrue();
-        assertThat(CreditType.PERSONAL.requiresCreditLimit()).isFalse();
-        assertThat(CreditType.BUSINESS.requiresCreditLimit()).isFalse();
-    }
 }

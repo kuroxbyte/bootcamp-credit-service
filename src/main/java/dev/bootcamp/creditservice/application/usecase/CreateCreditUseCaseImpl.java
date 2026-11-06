@@ -5,7 +5,7 @@ import dev.bootcamp.creditservice.application.port.CustomerClient;
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
-import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import io.reactivex.rxjava3.core.Single;
 
 public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     private final CreditRepository creditRepository;
@@ -17,15 +17,22 @@ public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     }
 
     @Override
-    public Credit execute(String customerId, CreditType type) {
-        Customer customer = customerClient.findById(customerId)
-                .orElseThrow(() -> new BusinessRuleException("El cliente no existe"));
-        Credit credit = new Credit(customer, type);
-        // Personal: solo un crédito por persona. Empresarial: sin límite.
-        if (type == CreditType.PERSONAL
-                && creditRepository.existsByCustomerIdAndType(customerId, CreditType.PERSONAL)) {
-            throw new BusinessRuleException("El cliente ya tiene un crédito personal");
+    public Single<Credit> execute(String customerId, CreditType type) {
+        return customerClient.findById(customerId)
+                .switchIfEmpty(Single.error(() -> new BusinessRuleException("El cliente no existe")))
+                .map(customer -> new Credit(customer, type))
+                .flatMap(this::validateOnePersonalCreditPerCustomer)
+                .flatMap(creditRepository::save);
+    }
+
+    // Personal: solo un crédito por persona. Empresarial: sin límite.
+    private Single<Credit> validateOnePersonalCreditPerCustomer(Credit credit) {
+        if (credit.getType() != CreditType.PERSONAL) {
+            return Single.just(credit);
         }
-        return creditRepository.save(credit);
+        return creditRepository.existsByCustomerIdAndType(credit.getCustomer().id(), CreditType.PERSONAL)
+                .flatMap(exists -> exists
+                        ? Single.error(new BusinessRuleException("El cliente ya tiene un crédito personal"))
+                        : Single.just(credit));
     }
 }

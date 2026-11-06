@@ -27,5 +27,5 @@ public interface CreateCreditUseCase {
      *                               corresponde al tipo de cliente o si el cliente
      *                               personal ya tiene un crédito personal
      */
-    Credit execute(Long customerId, CreditType type);
+    Credit execute(String customerId, CreditType type);
 }

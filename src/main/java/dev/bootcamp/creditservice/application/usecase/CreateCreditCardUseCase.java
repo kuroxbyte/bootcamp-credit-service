@@ -25,5 +25,5 @@ public interface CreateCreditCardUseCase {
      * @return la tarjeta guardada
      * @throws BusinessRuleException si el cliente no existe o el límite de crédito no es mayor a 0
      */
-    CreditCard execute(Long customerId, BigDecimal creditLimit);
+    CreditCard execute(String customerId, BigDecimal creditLimit);
 }

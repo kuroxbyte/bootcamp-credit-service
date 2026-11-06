@@ -6,7 +6,6 @@ import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
-import java.math.BigDecimal;
 
 public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     private final CreditRepository creditRepository;
@@ -18,10 +17,10 @@ public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     }
 
     @Override
-    public Credit execute(Long customerId, CreditType type, BigDecimal creditLimit) {
+    public Credit execute(Long customerId, CreditType type) {
         Customer customer = customerClient.findById(customerId)
                 .orElseThrow(() -> new BusinessRuleException("El cliente no existe"));
-        Credit credit = new Credit(customer, type, creditLimit);
+        Credit credit = new Credit(customer, type);
         // Personal: solo un crédito por persona. Empresarial: sin límite.
         if (type == CreditType.PERSONAL
                 && creditRepository.existsByCustomerIdAndType(customerId, CreditType.PERSONAL)) {

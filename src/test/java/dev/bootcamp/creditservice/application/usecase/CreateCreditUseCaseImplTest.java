@@ -15,6 +15,7 @@ import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class CreateCreditUseCaseImplTest {
+
+    private static final BigDecimal LIMIT = new BigDecimal("1000");
 
     @Mock
     private CreditRepository creditRepository;
@@ -38,7 +41,7 @@ class CreateCreditUseCaseImplTest {
     void rejectsUnknownCustomer() {
         when(customerClient.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> useCase.execute(99L, CreditType.CREDIT_CARD))
+        assertThatThrownBy(() -> useCase.execute(99L, CreditType.CREDIT_CARD, LIMIT))
                 .isInstanceOf(BusinessRuleException.class);
         verify(creditRepository, never()).save(any());
     }
@@ -48,7 +51,7 @@ class CreateCreditUseCaseImplTest {
         when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
         when(creditRepository.existsByCustomerIdAndType(1L, CreditType.PERSONAL)).thenReturn(false);
 
-        useCase.execute(1L, CreditType.PERSONAL);
+        useCase.execute(1L, CreditType.PERSONAL, null);
 
         verify(creditRepository).save(any(Credit.class));
     }
@@ -58,7 +61,7 @@ class CreateCreditUseCaseImplTest {
         when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
         when(creditRepository.existsByCustomerIdAndType(1L, CreditType.PERSONAL)).thenReturn(true);
 
-        assertThatThrownBy(() -> useCase.execute(1L, CreditType.PERSONAL))
+        assertThatThrownBy(() -> useCase.execute(1L, CreditType.PERSONAL, null))
                 .isInstanceOf(BusinessRuleException.class);
         verify(creditRepository, never()).save(any());
     }
@@ -67,8 +70,8 @@ class CreateCreditUseCaseImplTest {
     void allowsMultipleBusinessCredits() {
         when(customerClient.findById(2L)).thenReturn(Optional.of(new Customer(2L, CustomerType.BUSINESS)));
 
-        useCase.execute(2L, CreditType.BUSINESS);
-        useCase.execute(2L, CreditType.BUSINESS);
+        useCase.execute(2L, CreditType.BUSINESS, null);
+        useCase.execute(2L, CreditType.BUSINESS, null);
 
         verify(creditRepository, never()).existsByCustomerIdAndType(any(), any());
         verify(creditRepository, times(2)).save(any(Credit.class));
@@ -78,7 +81,7 @@ class CreateCreditUseCaseImplTest {
     void doesNotRequireBankAccount() {
         when(customerClient.findById(1L)).thenReturn(Optional.of(new Customer(1L, CustomerType.PERSONAL)));
 
-        useCase.execute(1L, CreditType.CREDIT_CARD);
+        useCase.execute(1L, CreditType.CREDIT_CARD, LIMIT);
 
         // Solo se consulta al cliente; no hay consulta a cuentas bancarias.
         verify(customerClient).findById(1L);

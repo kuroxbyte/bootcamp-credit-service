@@ -1,3 +1,6 @@
+server:
+  port: ${SERVER_PORT:8083}
+
 spring:
   application:
     name: credit-service
@@ -8,3 +11,8 @@ spring:
     mongodb:
       # Crea los índices declarados con @Indexed en los documentos.
       auto-index-creation: true
+
+clients:
+  customer-service:
+    base-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
+    timeout: 3s

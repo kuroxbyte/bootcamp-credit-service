@@ -14,6 +14,7 @@ import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import io.reactivex.rxjava3.core.Flowable;
+import dev.bootcamp.creditservice.infrastructure.client.ServiceUnavailableException;
 import io.reactivex.rxjava3.core.Single;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,5 +117,18 @@ class CreditControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.customerId").isEqualTo("1");
+    }
+
+    @Test
+    void returnsServiceUnavailableWhenCustomerServiceIsDown() {
+        when(createCreditUseCase.execute("1", CreditType.PERSONAL)).thenReturn(Single.error(
+                new ServiceUnavailableException("customer-service no está disponible", new RuntimeException())));
+
+        webTestClient.post().uri("/api/v1/credits")
+                .header("X-Customer-Id", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"type\":\"PERSONAL\"}")
+                .exchange()
+                .expectStatus().isEqualTo(503);
     }
 }

@@ -1,6 +1,7 @@
 package dev.bootcamp.creditservice.application.usecase;
 
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
+import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import io.reactivex.rxjava3.core.Single;
 import java.math.BigDecimal;
@@ -16,8 +17,10 @@ import java.math.BigDecimal;
  *   <li>No se exige que el cliente tenga una cuenta bancaria en la institución.</li>
  * </ul>
  *
- * <p>Es reactivo: no hace nada hasta que se suscribe al {@link Single}. Si se incumple una
- * regla, el {@link Single} termina con error {@link BusinessRuleException} y la tarjeta no se guarda.
+ * <p>Es reactivo: no hace nada hasta que se suscribe al {@link Single}. Termina con error
+ * {@link NotFoundException} si el cliente o el producto no existe (o no pertenece al cliente),
+ * y con error {@link BusinessRuleException} si se incumple una regla de negocio; en ambos
+ * casos no se guarda nada.
  */
 public interface CreateCreditCardUseCase {
 
@@ -26,8 +29,8 @@ public interface CreateCreditCardUseCase {
      *
      * @param customerId  id del cliente en customer-service
      * @param creditLimit límite de crédito de la tarjeta
-     * @return la tarjeta guardada; error {@link BusinessRuleException} si el cliente no existe
-     *         o el límite de crédito no es mayor a 0
+     * @return la tarjeta guardada; error {@link NotFoundException} si el cliente no existe; {@link BusinessRuleException} si el
+     *         límite de crédito no es mayor a 0
      */
     Single<CreditCard> execute(String customerId, BigDecimal creditLimit);
 }

@@ -3,6 +3,7 @@ package dev.bootcamp.creditservice.application.usecase;
 import dev.bootcamp.creditservice.application.port.CreditRepository;
 import dev.bootcamp.creditservice.application.port.CustomerClient;
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
+import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import io.reactivex.rxjava3.core.Single;
@@ -19,7 +20,7 @@ public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     @Override
     public Single<Credit> execute(String customerId, CreditType type) {
         return customerClient.findById(customerId)
-                .switchIfEmpty(Single.error(() -> new BusinessRuleException("El cliente no existe")))
+                .switchIfEmpty(Single.error(() -> new NotFoundException("El cliente no existe")))
                 .map(customer -> new Credit(customer, type))
                 .flatMap(this::validateOnePersonalCreditPerCustomer)
                 .flatMap(creditRepository::save);

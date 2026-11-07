@@ -4,7 +4,7 @@ import dev.bootcamp.creditservice.application.port.CreditCardRepository;
 import dev.bootcamp.creditservice.application.port.CustomerClient;
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
-import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import io.reactivex.rxjava3.core.Single;
 import java.math.BigDecimal;
 
 public class CreateCreditCardUseCaseImpl implements CreateCreditCardUseCase {
@@ -17,9 +17,10 @@ public class CreateCreditCardUseCaseImpl implements CreateCreditCardUseCase {
     }
 
     @Override
-    public CreditCard execute(String customerId, BigDecimal creditLimit) {
-        Customer customer = customerClient.findById(customerId)
-                .orElseThrow(() -> new BusinessRuleException("El cliente no existe"));
-        return creditCardRepository.save(new CreditCard(customer, creditLimit));
+    public Single<CreditCard> execute(String customerId, BigDecimal creditLimit) {
+        return customerClient.findById(customerId)
+                .switchIfEmpty(Single.error(() -> new BusinessRuleException("El cliente no existe")))
+                .map(customer -> new CreditCard(customer, creditLimit))
+                .flatMap(creditCardRepository::save);
     }
 }

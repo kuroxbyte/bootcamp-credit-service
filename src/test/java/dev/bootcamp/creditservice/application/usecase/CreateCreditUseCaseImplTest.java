@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import dev.bootcamp.creditservice.application.port.CreditRepository;
 import dev.bootcamp.creditservice.application.port.CustomerClient;
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
+import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
@@ -45,7 +46,7 @@ class CreateCreditUseCaseImplTest {
     void rejectsUnknownCustomer() {
         when(customerClient.findById("99")).thenReturn(Maybe.empty());
 
-        useCase.execute("99", CreditType.BUSINESS).test().assertError(BusinessRuleException.class);
+        useCase.execute("99", CreditType.BUSINESS).test().assertError(NotFoundException.class);
         verify(creditRepository, never()).save(any());
     }
 

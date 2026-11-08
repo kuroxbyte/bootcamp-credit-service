@@ -20,7 +20,8 @@ public class CreditPersistenceAdapter implements CreditRepository {
 
     @Override
     public Single<Boolean> existsByCustomerIdAndType(String customerId, CreditType type) {
-        return Single.fromPublisher(mongoRepository.existsByCustomerIdAndType(customerId, type.name()));
+        return Single.fromPublisher(
+                mongoRepository.existsByCustomerIdAndType(customerId, type.name()));
     }
 
     @Override
@@ -37,7 +38,8 @@ public class CreditPersistenceAdapter implements CreditRepository {
 
     @Override
     public Single<Credit> save(Credit credit) {
-        return Single.fromPublisher(mongoRepository.save(CreditPersistenceMapper.toDocument(credit)))
+        return Single.fromPublisher(
+                        mongoRepository.save(CreditPersistenceMapper.toDocument(credit)))
                 .doOnSuccess(saved -> log.debug("Credit saved creditId={}", saved.getId()))
                 .map(CreditPersistenceMapper::toDomain);
     }

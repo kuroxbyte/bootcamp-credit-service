@@ -5,16 +5,18 @@ import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Crédito personal o empresarial.
- */
+/** Crédito personal o empresarial. */
 @Getter
 public class Credit {
-    @Setter
-    private String id;
+    @Setter private String id;
     private final Customer customer;
     private final CreditType type;
 
+    /**
+     * Crea el crédito validando que el tipo de crédito corresponda al tipo de cliente.
+     *
+     * @throws BusinessRuleException si el tipo de cliente no puede recibir este crédito
+     */
     public Credit(Customer customer, CreditType type) {
         if (!type.allows(customer.type())) {
             throw new BusinessRuleException(

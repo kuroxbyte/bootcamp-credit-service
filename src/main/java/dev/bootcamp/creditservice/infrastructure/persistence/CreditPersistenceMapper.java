@@ -8,30 +8,38 @@ import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 
 /** Conversión entre el dominio y los documentos de MongoDB. */
 final class CreditPersistenceMapper {
-
-    private CreditPersistenceMapper() {
-    }
+    private CreditPersistenceMapper() {}
 
     static CreditDocument toDocument(Credit credit) {
-        return new CreditDocument(credit.getId(), credit.getCustomer().id(),
-                credit.getCustomer().type().name(), credit.getType().name());
+        return new CreditDocument(
+                credit.getId(),
+                credit.getCustomer().id(),
+                credit.getCustomer().type().name(),
+                credit.getType().name());
+    }
+
+    static CreditCardDocument toDocument(CreditCard creditCard) {
+        return new CreditCardDocument(
+                creditCard.getId(),
+                creditCard.getCustomer().id(),
+                creditCard.getCustomer().type().name(),
+                creditCard.getCreditLimit());
     }
 
     static Credit toDomain(CreditDocument document) {
-        Credit credit = new Credit(customer(document.getCustomerId(), document.getCustomerType()),
-                CreditType.valueOf(document.getType()));
+        Credit credit =
+                new Credit(
+                        customer(document.getCustomerId(), document.getCustomerType()),
+                        CreditType.valueOf(document.getType()));
         credit.setId(document.getId());
         return credit;
     }
 
-    static CreditCardDocument toDocument(CreditCard creditCard) {
-        return new CreditCardDocument(creditCard.getId(), creditCard.getCustomer().id(),
-                creditCard.getCustomer().type().name(), creditCard.getCreditLimit());
-    }
-
     static CreditCard toDomain(CreditCardDocument document) {
-        CreditCard creditCard = new CreditCard(customer(document.getCustomerId(), document.getCustomerType()),
-                document.getCreditLimit());
+        CreditCard creditCard =
+                new CreditCard(
+                        customer(document.getCustomerId(), document.getCustomerType()),
+                        document.getCreditLimit());
         creditCard.setId(document.getId());
         return creditCard;
     }

@@ -27,14 +27,11 @@ class CreateCreditCardUseCaseImplTest {
 
     private static final BigDecimal LIMIT = new BigDecimal("1000");
 
-    @Mock
-    private CreditCardRepository creditCardRepository;
+    @Mock private CreditCardRepository creditCardRepository;
 
-    @Mock
-    private CustomerClient customerClient;
+    @Mock private CustomerClient customerClient;
 
-    @InjectMocks
-    private CreateCreditCardUseCaseImpl useCase;
+    @InjectMocks private CreateCreditCardUseCaseImpl useCase;
 
     private void givenSaveReturnsCard() {
         when(creditCardRepository.save(any())).thenAnswer(inv -> Single.just(inv.getArgument(0)));
@@ -50,16 +47,19 @@ class CreateCreditCardUseCaseImplTest {
 
     @Test
     void createsCardForPersonalCustomer() {
-        when(customerClient.findById("1")).thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
+        when(customerClient.findById("1"))
+                .thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
         givenSaveReturnsCard();
 
-        useCase.execute("1", LIMIT).test()
+        useCase.execute("1", LIMIT)
+                .test()
                 .assertValue(card -> card.getCreditLimit().compareTo(LIMIT) == 0);
     }
 
     @Test
     void createsCardForBusinessCustomer() {
-        when(customerClient.findById("2")).thenReturn(Maybe.just(new Customer("2", CustomerType.BUSINESS)));
+        when(customerClient.findById("2"))
+                .thenReturn(Maybe.just(new Customer("2", CustomerType.BUSINESS)));
         givenSaveReturnsCard();
 
         useCase.execute("2", LIMIT).test().assertComplete();
@@ -69,7 +69,8 @@ class CreateCreditCardUseCaseImplTest {
 
     @Test
     void doesNotSaveCardWithoutPositiveCreditLimit() {
-        when(customerClient.findById("1")).thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
+        when(customerClient.findById("1"))
+                .thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
 
         useCase.execute("1", BigDecimal.ZERO).test().assertError(BusinessRuleException.class);
         verify(creditCardRepository, never()).save(any());
@@ -77,7 +78,8 @@ class CreateCreditCardUseCaseImplTest {
 
     @Test
     void doesNotRequireBankAccount() {
-        when(customerClient.findById("1")).thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
+        when(customerClient.findById("1"))
+                .thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
         givenSaveReturnsCard();
 
         useCase.execute("1", LIMIT).test().assertComplete();

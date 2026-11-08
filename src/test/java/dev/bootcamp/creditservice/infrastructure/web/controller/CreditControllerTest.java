@@ -13,8 +13,8 @@ import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
-import io.reactivex.rxjava3.core.Flowable;
 import dev.bootcamp.creditservice.infrastructure.client.ServiceUnavailableException;
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +26,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @WebFluxTest(CreditController.class)
 class CreditControllerTest {
 
-    @Autowired
-    private WebTestClient webTestClient;
+    @Autowired private WebTestClient webTestClient;
 
-    @MockitoBean
-    private CreateCreditUseCase createCreditUseCase;
+    @MockitoBean private CreateCreditUseCase createCreditUseCase;
 
-    @MockitoBean
-    private GetCreditsUseCase getCreditsUseCase;
+    @MockitoBean private GetCreditsUseCase getCreditsUseCase;
 
     private static Credit personalCredit() {
         Credit credit = new Credit(new Customer("1", CustomerType.PERSONAL), CreditType.PERSONAL);
@@ -43,28 +40,38 @@ class CreditControllerTest {
 
     @Test
     void grantsCredit() {
-        when(createCreditUseCase.execute("1", CreditType.PERSONAL)).thenReturn(Single.just(personalCredit()));
+        when(createCreditUseCase.execute("1", CreditType.PERSONAL))
+                .thenReturn(Single.just(personalCredit()));
 
-        webTestClient.post().uri("/api/v1/credits")
+        webTestClient
+                .post()
+                .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"type\":\"PERSONAL\"}")
                 .exchange()
-                .expectStatus().isCreated()
+                .expectStatus()
+                .isCreated()
                 .expectBody()
-                .jsonPath("$.id").isEqualTo("5")
-                .jsonPath("$.customerId").isEqualTo("1")
-                .jsonPath("$.type").isEqualTo("PERSONAL");
+                .jsonPath("$.id")
+                .isEqualTo("5")
+                .jsonPath("$.customerId")
+                .isEqualTo("1")
+                .jsonPath("$.type")
+                .isEqualTo("PERSONAL");
     }
 
     @Test
     void rejectsUnknownCreditType() {
-        webTestClient.post().uri("/api/v1/credits")
+        webTestClient
+                .post()
+                .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"type\":\"CREDIT_CARD\"}")
                 .exchange()
-                .expectStatus().isBadRequest();
+                .expectStatus()
+                .isBadRequest();
 
         verify(createCreditUseCase, never()).execute(any(), any());
     }
@@ -72,15 +79,22 @@ class CreditControllerTest {
     @Test
     void returnsUnprocessableForSecondPersonalCredit() {
         when(createCreditUseCase.execute("1", CreditType.PERSONAL))
-                .thenReturn(Single.error(new BusinessRuleException("El cliente ya tiene un crédito personal")));
+                .thenReturn(
+                        Single.error(
+                                new BusinessRuleException(
+                                        "El cliente ya tiene un crédito personal")));
 
-        webTestClient.post().uri("/api/v1/credits")
+        webTestClient
+                .post()
+                .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"type\":\"PERSONAL\"}")
                 .exchange()
-                .expectStatus().isEqualTo(422)
-                .expectHeader().contentType(MediaType.APPLICATION_PROBLEM_JSON);
+                .expectStatus()
+                .isEqualTo(422)
+                .expectHeader()
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON);
     }
 
     @Test
@@ -88,47 +102,65 @@ class CreditControllerTest {
         when(createCreditUseCase.execute("99", CreditType.PERSONAL))
                 .thenReturn(Single.error(new NotFoundException("El cliente no existe")));
 
-        webTestClient.post().uri("/api/v1/credits")
+        webTestClient
+                .post()
+                .uri("/api/v1/credits")
                 .header("X-Customer-Id", "99")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"type\":\"PERSONAL\"}")
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus()
+                .isNotFound();
     }
 
     @Test
     void listsCreditsOfCustomer() {
         when(getCreditsUseCase.findByCustomerId("1")).thenReturn(Flowable.just(personalCredit()));
 
-        webTestClient.get().uri("/api/v1/credits")
+        webTestClient
+                .get()
+                .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus()
+                .isOk()
                 .expectBody()
-                .jsonPath("$[0].id").isEqualTo("5");
+                .jsonPath("$[0].id")
+                .isEqualTo("5");
     }
 
     @Test
     void returnsCreditById() {
         when(getCreditsUseCase.findById("5")).thenReturn(Single.just(personalCredit()));
 
-        webTestClient.get().uri("/api/v1/credits/5")
+        webTestClient
+                .get()
+                .uri("/api/v1/credits/5")
                 .exchange()
-                .expectStatus().isOk()
+                .expectStatus()
+                .isOk()
                 .expectBody()
-                .jsonPath("$.customerId").isEqualTo("1");
+                .jsonPath("$.customerId")
+                .isEqualTo("1");
     }
 
     @Test
     void returnsServiceUnavailableWhenCustomerServiceIsDown() {
-        when(createCreditUseCase.execute("1", CreditType.PERSONAL)).thenReturn(Single.error(
-                new ServiceUnavailableException("customer-service no está disponible", new RuntimeException())));
+        when(createCreditUseCase.execute("1", CreditType.PERSONAL))
+                .thenReturn(
+                        Single.error(
+                                new ServiceUnavailableException(
+                                        "customer-service no está disponible",
+                                        new RuntimeException())));
 
-        webTestClient.post().uri("/api/v1/credits")
+        webTestClient
+                .post()
+                .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"type\":\"PERSONAL\"}")
                 .exchange()
-                .expectStatus().isEqualTo(503);
+                .expectStatus()
+                .isEqualTo(503);
     }
 }

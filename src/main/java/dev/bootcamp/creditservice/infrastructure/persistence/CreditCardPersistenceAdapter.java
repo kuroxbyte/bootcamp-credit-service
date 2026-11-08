@@ -31,7 +31,8 @@ public class CreditCardPersistenceAdapter implements CreditCardRepository {
 
     @Override
     public Single<CreditCard> save(CreditCard creditCard) {
-        return Single.fromPublisher(mongoRepository.save(CreditPersistenceMapper.toDocument(creditCard)))
+        return Single.fromPublisher(
+                        mongoRepository.save(CreditPersistenceMapper.toDocument(creditCard)))
                 .doOnSuccess(saved -> log.debug("Credit card saved creditCardId={}", saved.getId()))
                 .map(CreditPersistenceMapper::toDomain);
     }

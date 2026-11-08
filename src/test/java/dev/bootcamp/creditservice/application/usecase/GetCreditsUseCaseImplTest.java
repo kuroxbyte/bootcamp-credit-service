@@ -19,13 +19,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class GetCreditsUseCaseImplTest {
 
-    private static final Credit CREDIT = new Credit(new Customer("2", CustomerType.BUSINESS), CreditType.BUSINESS);
+    private static final Credit CREDIT =
+            new Credit(new Customer("2", CustomerType.BUSINESS), CreditType.BUSINESS);
 
-    @Mock
-    private CreditRepository creditRepository;
+    @Mock private CreditRepository creditRepository;
 
-    @InjectMocks
-    private GetCreditsUseCaseImpl useCase;
+    @InjectMocks private GetCreditsUseCaseImpl useCase;
 
     @Test
     void listsCreditsOfCustomer() {

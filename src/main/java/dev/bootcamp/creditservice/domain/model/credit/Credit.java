@@ -5,7 +5,9 @@ import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import lombok.Getter;
 import lombok.Setter;
 
-/** Crédito personal o empresarial. */
+/**
+ * Crédito personal o empresarial.
+ */
 @Getter
 public class Credit {
     @Setter private String id;

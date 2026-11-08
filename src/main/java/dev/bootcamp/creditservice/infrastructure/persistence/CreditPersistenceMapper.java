@@ -6,7 +6,9 @@ import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 
-/** Conversión entre el dominio y los documentos de MongoDB. */
+/**
+ * Conversión entre el dominio y los documentos de MongoDB.
+ */
 final class CreditPersistenceMapper {
     private CreditPersistenceMapper() {}
 

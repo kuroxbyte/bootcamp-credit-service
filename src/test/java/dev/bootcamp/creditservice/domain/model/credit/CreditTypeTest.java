@@ -1,9 +1,9 @@
 package dev.bootcamp.creditservice.domain.model.credit;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CreditTypeTest {
 

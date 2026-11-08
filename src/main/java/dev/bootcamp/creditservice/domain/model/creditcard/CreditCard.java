@@ -2,9 +2,10 @@ package dev.bootcamp.creditservice.domain.model.creditcard;
 
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
-import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 /**
  * Tarjeta de crédito, para clientes personales o empresariales. El límite de crédito define cuánto

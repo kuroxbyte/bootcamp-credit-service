@@ -6,11 +6,15 @@ import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 
-/** Implementación de {@link GetCreditsUseCase}. */
+/**
+ * Implementación de {@link GetCreditsUseCase}.
+ */
 public class GetCreditsUseCaseImpl implements GetCreditsUseCase {
     private final CreditRepository creditRepository;
 
-    /** Crea el caso de uso con los adaptadores de sus puertos. */
+    /**
+     * Crea el caso de uso con los adaptadores de sus puertos.
+     */
     public GetCreditsUseCaseImpl(CreditRepository creditRepository) {
         this.creditRepository = creditRepository;
     }

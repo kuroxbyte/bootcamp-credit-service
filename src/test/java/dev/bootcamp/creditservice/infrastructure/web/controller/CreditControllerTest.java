@@ -1,10 +1,5 @@
 package dev.bootcamp.creditservice.infrastructure.web.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import dev.bootcamp.creditservice.application.usecase.CreateCreditUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCase;
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
@@ -22,6 +17,11 @@ import org.springframework.boot.webflux.test.autoconfigure.WebFluxTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @WebFluxTest(CreditController.class)
 class CreditControllerTest {

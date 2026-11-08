@@ -5,7 +5,9 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 
-/** Puerto de persistencia de las tarjetas de crédito. */
+/**
+ * Puerto de persistencia de las tarjetas de crédito.
+ */
 public interface CreditCardRepository {
 
     /**
@@ -22,6 +24,8 @@ public interface CreditCardRepository {
      */
     Flowable<CreditCard> findByCustomerId(String customerId);
 
-    /** Guarda la tarjeta y la emite con su id asignado. */
+    /**
+     * Guarda la tarjeta y la emite con su id asignado.
+     */
     Single<CreditCard> save(CreditCard creditCard);
 }

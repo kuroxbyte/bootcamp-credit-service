@@ -15,7 +15,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/** Endpoints de tarjetas de crédito definidos en el contrato OpenAPI. */
+/**
+ * Endpoints de tarjetas de crédito definidos en el contrato OpenAPI.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -50,7 +52,8 @@ public class CreditCardController implements CreditCardsApi {
 
     @Override
     public Mono<ResponseEntity<Flux<CreditCardResponseDto>>> listCreditCards(
-            String customerId, ServerWebExchange exchange) {
+            String customerId,
+            ServerWebExchange exchange) {
         log.debug("Listing credit cards customerId={}", customerId);
         Flux<CreditCardResponseDto> cards =
                 Flux.from(getCreditCardsUseCase.findByCustomerId(customerId))
@@ -60,7 +63,8 @@ public class CreditCardController implements CreditCardsApi {
 
     @Override
     public Mono<ResponseEntity<CreditCardResponseDto>> getCreditCardById(
-            String creditCardId, ServerWebExchange exchange) {
+            String creditCardId,
+            ServerWebExchange exchange) {
         log.debug("Fetching credit card creditCardId={}", creditCardId);
         return Mono.from(getCreditCardsUseCase.findById(creditCardId).toFlowable())
                 .map(card -> ResponseEntity.ok(CreditWebMapper.toResponse(card)));

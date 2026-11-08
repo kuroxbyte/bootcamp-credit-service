@@ -7,17 +7,23 @@ import dev.bootcamp.creditservice.infrastructure.web.dto.CreditCardResponseDto;
 import dev.bootcamp.creditservice.infrastructure.web.dto.CreditResponseDto;
 import dev.bootcamp.creditservice.infrastructure.web.dto.CreditTypeDto;
 
-/** Conversión entre el dominio y los DTOs del contrato OpenAPI. */
+/**
+ * Conversión entre el dominio y los DTOs del contrato OpenAPI.
+ */
 public final class CreditWebMapper {
 
     private CreditWebMapper() {}
 
-    /** Convierte el tipo del contrato OpenAPI al tipo del dominio. */
+    /**
+     * Convierte el tipo del contrato OpenAPI al tipo del dominio.
+     */
     public static CreditType toDomain(CreditTypeDto type) {
         return CreditType.valueOf(type.name());
     }
 
-    /** Convierte {@link Credit} en su DTO de respuesta. */
+    /**
+     * Convierte {@link Credit} en su DTO de respuesta.
+     */
     public static CreditResponseDto toResponse(Credit credit) {
         return new CreditResponseDto(
                 credit.getId(),
@@ -25,7 +31,9 @@ public final class CreditWebMapper {
                 CreditTypeDto.valueOf(credit.getType().name()));
     }
 
-    /** Convierte {@link CreditCard} en su DTO de respuesta. */
+    /**
+     * Convierte {@link CreditCard} en su DTO de respuesta.
+     */
     public static CreditCardResponseDto toResponse(CreditCard creditCard) {
         return new CreditCardResponseDto(
                 creditCard.getId(), creditCard.getCustomer().id(), creditCard.getCreditLimit());

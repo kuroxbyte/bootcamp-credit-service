@@ -8,14 +8,19 @@ import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import io.reactivex.rxjava3.core.Single;
 
-/** Implementación de {@link CreateCreditUseCase}. */
+/**
+ * Implementación de {@link CreateCreditUseCase}.
+ */
 public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     private final CreditRepository creditRepository;
     private final CustomerClient customerClient;
 
-    /** Crea el caso de uso con los adaptadores de sus puertos. */
+    /**
+     * Crea el caso de uso con los adaptadores de sus puertos.
+     */
     public CreateCreditUseCaseImpl(
-            CreditRepository creditRepository, CustomerClient customerClient) {
+            CreditRepository creditRepository,
+            CustomerClient customerClient) {
         this.creditRepository = creditRepository;
         this.customerClient = customerClient;
     }

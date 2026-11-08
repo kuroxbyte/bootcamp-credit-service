@@ -22,11 +22,9 @@ class GetCreditCardsUseCaseImplTest {
     private static final CreditCard CARD =
             new CreditCard(new Customer("1", CustomerType.PERSONAL), new BigDecimal("1000"));
 
-    @Mock
-    private CreditCardRepository creditCardRepository;
+    @Mock private CreditCardRepository creditCardRepository;
 
-    @InjectMocks
-    private GetCreditCardsUseCaseImpl useCase;
+    @InjectMocks private GetCreditCardsUseCaseImpl useCase;
 
     @Test
     void listsCardsOfCustomer() {

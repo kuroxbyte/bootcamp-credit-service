@@ -11,12 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @Document(collection = "credits")
 public class CreditDocument {
-    @Id
-    private final String id;
-    @Indexed
-    private final String customerId;
+    @Id private final String id;
+    @Indexed private final String customerId;
+
     /** Tipo del cliente; se guarda para reconstruir el crédito sin consultar customer-service. */
     private final String customerType;
+
     /** PERSONAL o BUSINESS. */
     private final String type;
 }

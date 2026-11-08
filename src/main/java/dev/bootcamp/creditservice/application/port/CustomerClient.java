@@ -7,6 +7,8 @@ import io.reactivex.rxjava3.core.Maybe;
 public interface CustomerClient {
 
     /**
+     * Busca el recurso por su id.
+     *
      * @return el cliente, o vacío si no existe
      */
     Maybe<Customer> findById(String customerId);

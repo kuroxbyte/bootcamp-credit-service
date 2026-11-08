@@ -19,10 +19,15 @@ class CustomerWebClientAdapterTest {
 
     @Test
     void returnsCustomerFromCustomerService() {
-        StubWebClient stub = StubWebClient.respondingWith(HttpStatus.OK,
-                "{\"id\":\"1\",\"name\":\"Ana Torres\",\"type\":\"PERSONAL\"}");
+        StubWebClient stub =
+                StubWebClient.respondingWith(
+                        HttpStatus.OK,
+                        "{\"id\":\"1\",\"name\":\"Ana Torres\",\"type\":\"PERSONAL\"}");
 
-        adapter(stub, Duration.ofSeconds(1)).findById("1").test().awaitDone(2, TimeUnit.SECONDS)
+        adapter(stub, Duration.ofSeconds(1))
+                .findById("1")
+                .test()
+                .awaitDone(2, TimeUnit.SECONDS)
                 .assertValue(new Customer("1", CustomerType.PERSONAL));
         assertThat(stub.lastPath()).isEqualTo("/api/v1/customers/1");
     }
@@ -31,30 +36,43 @@ class CustomerWebClientAdapterTest {
     void returnsEmptyWhenCustomerDoesNotExist() {
         StubWebClient stub = StubWebClient.respondingWith(HttpStatus.NOT_FOUND, "{\"status\":404}");
 
-        adapter(stub, Duration.ofSeconds(1)).findById("99").test().awaitDone(2, TimeUnit.SECONDS)
+        adapter(stub, Duration.ofSeconds(1))
+                .findById("99")
+                .test()
+                .awaitDone(2, TimeUnit.SECONDS)
                 .assertComplete()
                 .assertNoValues();
     }
 
     @Test
     void failsAsUnavailableOnServerError() {
-        StubWebClient stub = StubWebClient.respondingWith(HttpStatus.INTERNAL_SERVER_ERROR, "{\"status\":500}");
+        StubWebClient stub =
+                StubWebClient.respondingWith(HttpStatus.INTERNAL_SERVER_ERROR, "{\"status\":500}");
 
-        adapter(stub, Duration.ofSeconds(1)).findById("1").test().awaitDone(2, TimeUnit.SECONDS)
+        adapter(stub, Duration.ofSeconds(1))
+                .findById("1")
+                .test()
+                .awaitDone(2, TimeUnit.SECONDS)
                 .assertError(ServiceUnavailableException.class);
     }
 
     @Test
     void failsAsUnavailableOnConnectionError() {
-        StubWebClient stub = StubWebClient.failingWith(new IllegalStateException("Connection refused"));
+        StubWebClient stub =
+                StubWebClient.failingWith(new IllegalStateException("Connection refused"));
 
-        adapter(stub, Duration.ofSeconds(1)).findById("1").test().awaitDone(2, TimeUnit.SECONDS)
+        adapter(stub, Duration.ofSeconds(1))
+                .findById("1")
+                .test()
+                .awaitDone(2, TimeUnit.SECONDS)
                 .assertError(ServiceUnavailableException.class);
     }
 
     @Test
     void failsAsUnavailableOnTimeout() {
-        adapter(StubWebClient.neverResponding(), Duration.ofMillis(100)).findById("1").test()
+        adapter(StubWebClient.neverResponding(), Duration.ofMillis(100))
+                .findById("1")
+                .test()
                 .awaitDone(2, TimeUnit.SECONDS)
                 .assertError(ServiceUnavailableException.class);
     }

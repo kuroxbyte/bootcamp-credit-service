@@ -29,14 +29,11 @@ class CreateCreditUseCaseImplTest {
     private static final Customer PERSONAL = new Customer("1", CustomerType.PERSONAL);
     private static final Customer BUSINESS = new Customer("2", CustomerType.BUSINESS);
 
-    @Mock
-    private CreditRepository creditRepository;
+    @Mock private CreditRepository creditRepository;
 
-    @Mock
-    private CustomerClient customerClient;
+    @Mock private CustomerClient customerClient;
 
-    @InjectMocks
-    private CreateCreditUseCaseImpl useCase;
+    @InjectMocks private CreateCreditUseCaseImpl useCase;
 
     private void givenSaveReturnsCredit() {
         when(creditRepository.save(any())).thenAnswer(inv -> Single.just(inv.getArgument(0)));
@@ -53,7 +50,8 @@ class CreateCreditUseCaseImplTest {
     @Test
     void createsFirstPersonalCredit() {
         when(customerClient.findById("1")).thenReturn(Maybe.just(PERSONAL));
-        when(creditRepository.existsByCustomerIdAndType("1", CreditType.PERSONAL)).thenReturn(Single.just(false));
+        when(creditRepository.existsByCustomerIdAndType("1", CreditType.PERSONAL))
+                .thenReturn(Single.just(false));
         givenSaveReturnsCredit();
 
         useCase.execute("1", CreditType.PERSONAL).test().assertComplete();
@@ -64,7 +62,8 @@ class CreateCreditUseCaseImplTest {
     @Test
     void rejectsSecondPersonalCredit() {
         when(customerClient.findById("1")).thenReturn(Maybe.just(PERSONAL));
-        when(creditRepository.existsByCustomerIdAndType("1", CreditType.PERSONAL)).thenReturn(Single.just(true));
+        when(creditRepository.existsByCustomerIdAndType("1", CreditType.PERSONAL))
+                .thenReturn(Single.just(true));
 
         useCase.execute("1", CreditType.PERSONAL).test().assertError(BusinessRuleException.class);
         verify(creditRepository, never()).save(any());

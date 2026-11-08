@@ -14,12 +14,12 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 @AllArgsConstructor
 @Document(collection = "credit_cards")
 public class CreditCardDocument {
-    @Id
-    private final String id;
-    @Indexed
-    private final String customerId;
+    @Id private final String id;
+    @Indexed private final String customerId;
+
     /** Tipo del cliente; se guarda para reconstruir la tarjeta sin consultar customer-service. */
     private final String customerType;
+
     @Field(targetType = FieldType.DECIMAL128)
     private final BigDecimal creditLimit;
 }

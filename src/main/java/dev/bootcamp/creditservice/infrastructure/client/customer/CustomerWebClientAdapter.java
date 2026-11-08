@@ -20,9 +20,11 @@ public class CustomerWebClientAdapter implements CustomerClient {
     private final WebClient webClient;
     private final Duration timeout;
 
-    public CustomerWebClientAdapter(WebClient.Builder webClientBuilder,
-                                    @Value("${clients.customer-service.base-url}") String baseUrl,
-                                    @Value("${clients.customer-service.timeout}") Duration timeout) {
+    /** Crea el cliente con la URL base y el tiempo de espera configurados. */
+    public CustomerWebClientAdapter(
+            WebClient.Builder webClientBuilder,
+            @Value("${clients.customer-service.base-url}") String baseUrl,
+            @Value("${clients.customer-service.timeout}") Duration timeout) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
         this.timeout = timeout;
     }
@@ -30,12 +32,15 @@ public class CustomerWebClientAdapter implements CustomerClient {
     @Override
     public Maybe<Customer> findById(String customerId) {
         return RemoteLookup.findById(
-                webClient.get()
+                webClient
+                        .get()
                         .uri("/api/v1/customers/{customerId}", customerId)
                         .retrieve()
                         .bodyToMono(CustomerResponseDto.class)
                         .map(CustomerWebClientAdapter::toDomain),
-                timeout, SERVICE_NAME, customerId);
+                timeout,
+                SERVICE_NAME,
+                customerId);
     }
 
     private static Customer toDomain(CustomerResponseDto response) {

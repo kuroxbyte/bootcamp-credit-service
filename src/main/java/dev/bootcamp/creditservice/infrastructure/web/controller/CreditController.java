@@ -15,7 +15,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/** Endpoints de créditos personales y empresariales definidos en el contrato OpenAPI. */
+/**
+ * Endpoints de créditos personales y empresariales definidos en el contrato OpenAPI.
+ */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -53,7 +55,8 @@ public class CreditController implements CreditsApi {
 
     @Override
     public Mono<ResponseEntity<Flux<CreditResponseDto>>> listCredits(
-            String customerId, ServerWebExchange exchange) {
+            String customerId,
+            ServerWebExchange exchange) {
         log.debug("Listing credits customerId={}", customerId);
         Flux<CreditResponseDto> credits =
                 Flux.from(getCreditsUseCase.findByCustomerId(customerId))
@@ -63,7 +66,8 @@ public class CreditController implements CreditsApi {
 
     @Override
     public Mono<ResponseEntity<CreditResponseDto>> getCreditById(
-            String creditId, ServerWebExchange exchange) {
+            String creditId,
+            ServerWebExchange exchange) {
         log.debug("Fetching credit creditId={}", creditId);
         return Mono.from(getCreditsUseCase.findById(creditId).toFlowable())
                 .map(credit -> ResponseEntity.ok(CreditWebMapper.toResponse(credit)));

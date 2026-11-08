@@ -6,9 +6,13 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 
-/** Puerto de persistencia de los créditos personales y empresariales. */
+/**
+ * Puerto de persistencia de los créditos personales y empresariales.
+ */
 public interface CreditRepository {
-    /** Indica si el cliente ya tiene un crédito del tipo indicado. */
+    /**
+     * Indica si el cliente ya tiene un crédito del tipo indicado.
+     */
     Single<Boolean> existsByCustomerIdAndType(String customerId, CreditType type);
 
     /**
@@ -25,6 +29,8 @@ public interface CreditRepository {
      */
     Flowable<Credit> findByCustomerId(String customerId);
 
-    /** Guarda el crédito y lo emite con su id asignado. */
+    /**
+     * Guarda el crédito y lo emite con su id asignado.
+     */
     Single<Credit> save(Credit credit);
 }

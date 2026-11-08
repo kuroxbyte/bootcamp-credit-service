@@ -21,27 +21,37 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UseCaseConfig {
 
-    /** Registra el caso de uso {@link CreateCreditUseCase}. */
+    /**
+     * Registra el caso de uso {@link CreateCreditUseCase}.
+     */
     @Bean
     public CreateCreditUseCase createCreditUseCase(
-            CreditRepository creditRepository, CustomerClient customerClient) {
+            CreditRepository creditRepository,
+            CustomerClient customerClient) {
         return new CreateCreditUseCaseImpl(creditRepository, customerClient);
     }
 
-    /** Registra el caso de uso {@link GetCreditsUseCase}. */
+    /**
+     * Registra el caso de uso {@link GetCreditsUseCase}.
+     */
     @Bean
     public GetCreditsUseCase getCreditsUseCase(CreditRepository creditRepository) {
         return new GetCreditsUseCaseImpl(creditRepository);
     }
 
-    /** Registra el caso de uso {@link CreateCreditCardUseCase}. */
+    /**
+     * Registra el caso de uso {@link CreateCreditCardUseCase}.
+     */
     @Bean
     public CreateCreditCardUseCase createCreditCardUseCase(
-            CreditCardRepository creditCardRepository, CustomerClient customerClient) {
+            CreditCardRepository creditCardRepository,
+            CustomerClient customerClient) {
         return new CreateCreditCardUseCaseImpl(creditCardRepository, customerClient);
     }
 
-    /** Registra el caso de uso {@link GetCreditCardsUseCase}. */
+    /**
+     * Registra el caso de uso {@link GetCreditCardsUseCase}.
+     */
     @Bean
     public GetCreditCardsUseCase getCreditCardsUseCase(CreditCardRepository creditCardRepository) {
         return new GetCreditCardsUseCaseImpl(creditCardRepository);

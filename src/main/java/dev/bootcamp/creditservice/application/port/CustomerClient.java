@@ -3,7 +3,9 @@ package dev.bootcamp.creditservice.application.port;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import io.reactivex.rxjava3.core.Maybe;
 
-/** Consulta de clientes en customer-service. */
+/**
+ * Consulta de clientes en customer-service.
+ */
 public interface CustomerClient {
 
     /**

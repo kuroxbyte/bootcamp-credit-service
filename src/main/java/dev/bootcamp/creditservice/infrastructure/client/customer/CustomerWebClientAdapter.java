@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.time.Duration;
-
 /**
  * Implementa el puerto {@link CustomerClient} consultando customer-service con WebClient.
  */
@@ -21,29 +19,28 @@ public class CustomerWebClientAdapter implements CustomerClient {
     private static final String SERVICE_NAME = "customer-service";
 
     private final WebClient webClient;
-    private final Duration timeout;
+    private final RemoteLookup remoteLookup;
 
     /**
-     * Crea el cliente con la URL base y el tiempo de espera configurados.
+     * Crea el cliente con la URL base configurada; las consultas pasan por un circuit breaker.
      */
     public CustomerWebClientAdapter(
             WebClient.Builder webClientBuilder,
             @Value("${clients.customer-service.base-url}") String baseUrl,
-            @Value("${clients.customer-service.timeout}") Duration timeout) {
+            RemoteLookup remoteLookup) {
         this.webClient = webClientBuilder.baseUrl(baseUrl).build();
-        this.timeout = timeout;
+        this.remoteLookup = remoteLookup;
     }
 
     @Override
     public Maybe<Customer> findById(String customerId) {
-        return RemoteLookup.findById(
+        return remoteLookup.findById(
                 webClient
                         .get()
                         .uri("/api/v1/customers/{customerId}", customerId)
                         .retrieve()
                         .bodyToMono(CustomerResponseDto.class)
                         .map(CustomerWebClientAdapter::toDomain),
-                timeout,
                 SERVICE_NAME,
                 customerId);
     }

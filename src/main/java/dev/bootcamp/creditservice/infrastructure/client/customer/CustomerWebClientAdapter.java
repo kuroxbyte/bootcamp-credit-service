@@ -2,6 +2,7 @@ package dev.bootcamp.creditservice.infrastructure.client.customer;
 
 import dev.bootcamp.creditservice.application.port.CustomerClient;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import dev.bootcamp.creditservice.infrastructure.client.RemoteLookup;
 import dev.bootcamp.creditservice.infrastructure.client.customer.dto.CustomerResponseDto;
@@ -46,6 +47,9 @@ public class CustomerWebClientAdapter implements CustomerClient {
     }
 
     private static Customer toDomain(CustomerResponseDto response) {
-        return new Customer(response.getId(), CustomerType.valueOf(response.getType().name()));
+        return new Customer(
+                response.getId(),
+                CustomerType.valueOf(response.getType().name()),
+                CustomerProfile.valueOf(response.getProfile().name()));
     }
 }

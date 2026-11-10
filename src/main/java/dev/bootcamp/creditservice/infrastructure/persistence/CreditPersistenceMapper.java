@@ -4,6 +4,7 @@ import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 
 /**
@@ -17,6 +18,7 @@ final class CreditPersistenceMapper {
                 credit.getId(),
                 credit.getCustomer().id(),
                 credit.getCustomer().type().name(),
+                credit.getCustomer().profile().name(),
                 credit.getType().name());
     }
 
@@ -25,13 +27,17 @@ final class CreditPersistenceMapper {
                 creditCard.getId(),
                 creditCard.getCustomer().id(),
                 creditCard.getCustomer().type().name(),
+                creditCard.getCustomer().profile().name(),
                 creditCard.getCreditLimit());
     }
 
     static Credit toDomain(CreditDocument document) {
         Credit credit =
                 new Credit(
-                        customer(document.getCustomerId(), document.getCustomerType()),
+                        customer(
+                                document.getCustomerId(),
+                                document.getCustomerType(),
+                                document.getCustomerProfile()),
                         CreditType.valueOf(document.getType()));
         credit.setId(document.getId());
         return credit;
@@ -40,13 +46,16 @@ final class CreditPersistenceMapper {
     static CreditCard toDomain(CreditCardDocument document) {
         CreditCard creditCard =
                 new CreditCard(
-                        customer(document.getCustomerId(), document.getCustomerType()),
+                        customer(
+                                document.getCustomerId(),
+                                document.getCustomerType(),
+                                document.getCustomerProfile()),
                         document.getCreditLimit());
         creditCard.setId(document.getId());
         return creditCard;
     }
 
-    private static Customer customer(String id, String type) {
-        return new Customer(id, CustomerType.valueOf(type));
+    private static Customer customer(String id, String type, String profile) {
+        return new Customer(id, CustomerType.valueOf(type), CustomerProfile.valueOf(profile));
     }
 }

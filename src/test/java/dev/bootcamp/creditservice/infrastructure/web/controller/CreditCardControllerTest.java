@@ -5,6 +5,7 @@ import dev.bootcamp.creditservice.application.usecase.GetCreditCardsUseCase;
 import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
@@ -33,7 +34,9 @@ class CreditCardControllerTest {
 
     private static CreditCard card() {
         CreditCard card =
-                new CreditCard(new Customer("1", CustomerType.PERSONAL), new BigDecimal("5000"));
+                new CreditCard(
+                        new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
+                        new BigDecimal("5000"));
         card.setId("7");
         return card;
     }

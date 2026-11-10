@@ -5,6 +5,7 @@ import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
@@ -20,7 +21,9 @@ import static org.mockito.Mockito.when;
 class GetCreditsUseCaseImplTest {
 
     private static final Credit CREDIT =
-            new Credit(new Customer("2", CustomerType.BUSINESS), CreditType.BUSINESS);
+            new Credit(
+                    new Customer("2", CustomerType.BUSINESS, CustomerProfile.STANDARD),
+                    CreditType.BUSINESS);
 
     @Mock private CreditRepository creditRepository;
 

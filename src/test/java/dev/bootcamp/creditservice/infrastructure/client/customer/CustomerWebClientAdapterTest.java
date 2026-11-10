@@ -1,6 +1,7 @@
 package dev.bootcamp.creditservice.infrastructure.client.customer;
 
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import dev.bootcamp.creditservice.infrastructure.client.ServiceUnavailableException;
 import dev.bootcamp.creditservice.infrastructure.client.StubWebClient;
@@ -16,7 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CustomerWebClientAdapterTest {
 
     private static CustomerWebClientAdapter adapter(StubWebClient stub, Duration timeout) {
-        return new CustomerWebClientAdapter(stub.builder(), "http://customer-service", TestCircuitBreakers.remoteLookup(timeout));
+        return new CustomerWebClientAdapter(
+                stub.builder(),
+                "http://customer-service",
+                TestCircuitBreakers.remoteLookup(timeout));
     }
 
     @Test
@@ -24,13 +28,14 @@ class CustomerWebClientAdapterTest {
         StubWebClient stub =
                 StubWebClient.respondingWith(
                         HttpStatus.OK,
-                        "{\"id\":\"1\",\"name\":\"Ana Torres\",\"type\":\"PERSONAL\"}");
+                        "{\"id\":\"1\",\"name\":\"Ana Torres\",\"type\":\"PERSONAL\","
+                                + "\"profile\":\"STANDARD\"}");
 
         adapter(stub, Duration.ofSeconds(1))
                 .findById("1")
                 .test()
                 .awaitDone(2, TimeUnit.SECONDS)
-                .assertValue(new Customer("1", CustomerType.PERSONAL));
+                .assertValue(new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD));
         assertThat(stub.lastPath()).isEqualTo("/api/v1/customers/1");
     }
 

@@ -164,7 +164,7 @@
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
                             <modelPackage>dev.bootcamp.creditservice.infrastructure.client.customer.dto</modelPackage>
-                            <modelsToGenerate>CustomerResponse,CustomerType</modelsToGenerate>
+                            <modelsToGenerate>CustomerResponse,CustomerType,CustomerProfile</modelsToGenerate>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>

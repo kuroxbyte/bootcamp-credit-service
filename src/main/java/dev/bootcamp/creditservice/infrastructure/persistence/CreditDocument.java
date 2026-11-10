@@ -22,6 +22,11 @@ public class CreditDocument {
     private final String customerType;
 
     /**
+     * Perfil del cliente (STANDARD, VIP o PYME).
+     */
+    private final String customerProfile;
+
+    /**
      * PERSONAL o BUSINESS.
      */
     private final String type;

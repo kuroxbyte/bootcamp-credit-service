@@ -4,6 +4,7 @@ import dev.bootcamp.creditservice.application.port.CreditCardRepository;
 import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
@@ -21,7 +22,9 @@ import static org.mockito.Mockito.when;
 class GetCreditCardsUseCaseImplTest {
 
     private static final CreditCard CARD =
-            new CreditCard(new Customer("1", CustomerType.PERSONAL), new BigDecimal("1000"));
+            new CreditCard(
+                    new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
+                    new BigDecimal("1000"));
 
     @Mock private CreditCardRepository creditCardRepository;
 

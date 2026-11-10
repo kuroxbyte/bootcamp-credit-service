@@ -4,6 +4,7 @@ import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,14 @@ class CreditPersistenceAdaptersTest {
 
     @Container @ServiceConnection static MongoDBContainer mongo = new MongoDBContainer("mongo:7.0");
 
-    private static final Customer PERSONAL = new Customer("c1", CustomerType.PERSONAL);
-    private static final Customer BUSINESS = new Customer("c2", CustomerType.BUSINESS);
+    private static final Customer PERSONAL = new Customer(
+            "c1",
+            CustomerType.PERSONAL,
+            CustomerProfile.STANDARD);
+    private static final Customer BUSINESS = new Customer(
+            "c2",
+            CustomerType.BUSINESS,
+            CustomerProfile.STANDARD);
 
     @Autowired private CreditPersistenceAdapter creditAdapter;
 

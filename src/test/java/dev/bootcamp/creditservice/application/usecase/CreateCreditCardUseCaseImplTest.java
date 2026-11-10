@@ -6,6 +6,7 @@ import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
@@ -49,7 +50,12 @@ class CreateCreditCardUseCaseImplTest {
     @Test
     void createsCardForPersonalCustomer() {
         when(customerClient.findById("1"))
-                .thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
+                .thenReturn(
+                        Maybe.just(
+                                new Customer(
+                                        "1",
+                                        CustomerType.PERSONAL,
+                                        CustomerProfile.STANDARD)));
         givenSaveReturnsCard();
 
         useCase.execute("1", LIMIT)
@@ -60,7 +66,12 @@ class CreateCreditCardUseCaseImplTest {
     @Test
     void createsCardForBusinessCustomer() {
         when(customerClient.findById("2"))
-                .thenReturn(Maybe.just(new Customer("2", CustomerType.BUSINESS)));
+                .thenReturn(
+                        Maybe.just(
+                                new Customer(
+                                        "2",
+                                        CustomerType.BUSINESS,
+                                        CustomerProfile.STANDARD)));
         givenSaveReturnsCard();
 
         useCase.execute("2", LIMIT).test().assertComplete();
@@ -71,7 +82,12 @@ class CreateCreditCardUseCaseImplTest {
     @Test
     void doesNotSaveCardWithoutPositiveCreditLimit() {
         when(customerClient.findById("1"))
-                .thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
+                .thenReturn(
+                        Maybe.just(
+                                new Customer(
+                                        "1",
+                                        CustomerType.PERSONAL,
+                                        CustomerProfile.STANDARD)));
 
         useCase.execute("1", BigDecimal.ZERO).test().assertError(BusinessRuleException.class);
         verify(creditCardRepository, never()).save(any());
@@ -80,7 +96,12 @@ class CreateCreditCardUseCaseImplTest {
     @Test
     void doesNotRequireBankAccount() {
         when(customerClient.findById("1"))
-                .thenReturn(Maybe.just(new Customer("1", CustomerType.PERSONAL)));
+                .thenReturn(
+                        Maybe.just(
+                                new Customer(
+                                        "1",
+                                        CustomerType.PERSONAL,
+                                        CustomerProfile.STANDARD)));
         givenSaveReturnsCard();
 
         useCase.execute("1", LIMIT).test().assertComplete();

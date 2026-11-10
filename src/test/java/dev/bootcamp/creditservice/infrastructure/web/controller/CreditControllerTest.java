@@ -7,6 +7,7 @@ import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import dev.bootcamp.creditservice.infrastructure.client.ServiceUnavailableException;
 import io.reactivex.rxjava3.core.Flowable;
@@ -33,7 +34,9 @@ class CreditControllerTest {
     @MockitoBean private GetCreditsUseCase getCreditsUseCase;
 
     private static Credit personalCredit() {
-        Credit credit = new Credit(new Customer("1", CustomerType.PERSONAL), CreditType.PERSONAL);
+        Credit credit = new Credit(
+                new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
+                CreditType.PERSONAL);
         credit.setId("5");
         return credit;
     }

@@ -2,6 +2,7 @@ package dev.bootcamp.creditservice.domain.model.credit;
 
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
+import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import org.junit.jupiter.api.Test;
 
@@ -10,8 +11,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CreditTest {
 
-    private static final Customer PERSONAL = new Customer("1", CustomerType.PERSONAL);
-    private static final Customer BUSINESS = new Customer("2", CustomerType.BUSINESS);
+    private static final Customer PERSONAL = new Customer(
+            "1",
+            CustomerType.PERSONAL,
+            CustomerProfile.STANDARD);
+    private static final Customer BUSINESS = new Customer(
+            "2",
+            CustomerType.BUSINESS,
+            CustomerProfile.STANDARD);
 
     @Test
     void personalCreditOnlyForPersonalCustomers() {

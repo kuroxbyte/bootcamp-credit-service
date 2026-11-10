@@ -25,6 +25,11 @@ public class CreditCardDocument {
      */
     private final String customerType;
 
+    /**
+     * Perfil del cliente (STANDARD, VIP o PYME).
+     */
+    private final String customerProfile;
+
     @Field(targetType = FieldType.DECIMAL128)
     private final BigDecimal creditLimit;
 }

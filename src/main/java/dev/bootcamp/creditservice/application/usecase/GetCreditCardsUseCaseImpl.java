@@ -32,4 +32,9 @@ public class GetCreditCardsUseCaseImpl implements GetCreditCardsUseCase {
                         Single.error(
                                 () -> new NotFoundException("La tarjeta de crédito no existe")));
     }
+
+    @Override
+    public Flowable<CreditCard> findAll() {
+        return creditCardRepository.findAll();
+    }
 }

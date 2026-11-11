@@ -28,4 +28,9 @@ public interface CreditCardRepository {
      * Guarda la tarjeta y la emite con su id asignado.
      */
     Single<CreditCard> save(CreditCard creditCard);
+
+    /**
+     * Todas las tarjetas de crédito del banco.
+     */
+    Flowable<CreditCard> findAll();
 }

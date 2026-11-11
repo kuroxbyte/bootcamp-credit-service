@@ -10,13 +10,17 @@ import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -33,7 +37,16 @@ class CreateCreditCardUseCaseImplTest {
 
     @Mock private CustomerClient customerClient;
 
-    @InjectMocks private CreateCreditCardUseCaseImpl useCase;
+    private CreateCreditCardUseCaseImpl useCase;
+
+    /**
+     * Reloj fijo: la fecha de otorgamiento es 2026-11-15.
+     */
+    @BeforeEach
+    void createUseCase() {
+        Clock clock = Clock.fixed(Instant.parse("2026-11-15T10:00:00Z"), ZoneOffset.UTC);
+        useCase = new CreateCreditCardUseCaseImpl(creditCardRepository, customerClient, clock);
+    }
 
     private void givenSaveReturnsCard() {
         when(creditCardRepository.save(any())).thenAnswer(inv -> Single.just(inv.getArgument(0)));
@@ -110,5 +123,15 @@ class CreateCreditCardUseCaseImplTest {
         verify(customerClient).findById("1");
         verify(creditCardRepository).save(any(CreditCard.class));
         verifyNoMoreInteractions(customerClient, creditCardRepository);
+    }
+
+    @Test
+    void setsGrantedDateToToday() {
+        Customer business = new Customer("2", CustomerType.BUSINESS, CustomerProfile.STANDARD);
+        when(customerClient.findById("2")).thenReturn(Maybe.just(business));
+        when(creditCardRepository.save(any())).thenAnswer(inv -> Single.just(inv.getArgument(0)));
+
+        useCase.execute("2", LIMIT).test()
+                .assertValue(card -> card.getGrantedAt().equals(LocalDate.of(2026, 11, 15)));
     }
 }

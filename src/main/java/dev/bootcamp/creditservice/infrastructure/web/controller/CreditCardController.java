@@ -51,6 +51,14 @@ public class CreditCardController implements CreditCardsApi {
     }
 
     @Override
+    public Mono<ResponseEntity<Flux<CreditCardResponseDto>>> listAllCreditCards(
+            ServerWebExchange exchange) {
+        log.debug("Listing all credit cards for reports");
+        return Mono.just(ResponseEntity.ok(
+                Flux.from(getCreditCardsUseCase.findAll()).map(CreditWebMapper::toResponse)));
+    }
+
+    @Override
     public Mono<ResponseEntity<Flux<CreditCardResponseDto>>> listCreditCards(
             String customerId,
             ServerWebExchange exchange) {

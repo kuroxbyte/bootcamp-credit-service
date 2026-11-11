@@ -27,4 +27,11 @@ public interface GetCreditsUseCase {
      * @return el crédito; error {@link NotFoundException} si no existe
      */
     Single<Credit> findById(String id);
+
+    /**
+     * Lista todos los créditos del banco; lo usa transaction-service para los reportes.
+     *
+     * @return todos los productos de este tipo; ninguno si no hay
+     */
+    Flowable<Credit> findAll();
 }

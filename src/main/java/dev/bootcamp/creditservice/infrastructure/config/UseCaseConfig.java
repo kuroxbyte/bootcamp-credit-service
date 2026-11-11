@@ -14,6 +14,8 @@ import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCaseImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Clock;
+
 /**
  * Registra los casos de uso como beans. Los casos de uso no dependen de Spring; aquí se les
  * inyectan los adaptadores de sus puertos.
@@ -22,13 +24,22 @@ import org.springframework.context.annotation.Configuration;
 public class UseCaseConfig {
 
     /**
+     * Reloj del sistema; con él se fija la fecha de otorgamiento de créditos y tarjetas.
+     */
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
+    }
+
+    /**
      * Registra el caso de uso {@link CreateCreditUseCase}.
      */
     @Bean
     public CreateCreditUseCase createCreditUseCase(
             CreditRepository creditRepository,
-            CustomerClient customerClient) {
-        return new CreateCreditUseCaseImpl(creditRepository, customerClient);
+            CustomerClient customerClient,
+            Clock clock) {
+        return new CreateCreditUseCaseImpl(creditRepository, customerClient, clock);
     }
 
     /**
@@ -45,8 +56,9 @@ public class UseCaseConfig {
     @Bean
     public CreateCreditCardUseCase createCreditCardUseCase(
             CreditCardRepository creditCardRepository,
-            CustomerClient customerClient) {
-        return new CreateCreditCardUseCaseImpl(creditCardRepository, customerClient);
+            CustomerClient customerClient,
+            Clock clock) {
+        return new CreateCreditCardUseCaseImpl(creditCardRepository, customerClient, clock);
     }
 
     /**

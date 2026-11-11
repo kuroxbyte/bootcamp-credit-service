@@ -30,4 +30,9 @@ public class GetCreditsUseCaseImpl implements GetCreditsUseCase {
                 .findById(id)
                 .switchIfEmpty(Single.error(() -> new NotFoundException("El crédito no existe")));
     }
+
+    @Override
+    public Flowable<Credit> findAll() {
+        return creditRepository.findAll();
+    }
 }

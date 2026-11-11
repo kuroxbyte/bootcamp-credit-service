@@ -19,7 +19,8 @@ final class CreditPersistenceMapper {
                 credit.getCustomer().id(),
                 credit.getCustomer().type().name(),
                 credit.getCustomer().profile().name(),
-                credit.getType().name());
+                credit.getType().name(),
+                credit.getGrantedAt());
     }
 
     static CreditCardDocument toDocument(CreditCard creditCard) {
@@ -28,7 +29,8 @@ final class CreditPersistenceMapper {
                 creditCard.getCustomer().id(),
                 creditCard.getCustomer().type().name(),
                 creditCard.getCustomer().profile().name(),
-                creditCard.getCreditLimit());
+                creditCard.getCreditLimit(),
+                creditCard.getGrantedAt());
     }
 
     static Credit toDomain(CreditDocument document) {
@@ -40,6 +42,7 @@ final class CreditPersistenceMapper {
                                 document.getCustomerProfile()),
                         CreditType.valueOf(document.getType()));
         credit.setId(document.getId());
+        credit.setGrantedAt(document.getGrantedAt());
         return credit;
     }
 
@@ -52,6 +55,7 @@ final class CreditPersistenceMapper {
                                 document.getCustomerProfile()),
                         document.getCreditLimit());
         creditCard.setId(document.getId());
+        creditCard.setGrantedAt(document.getGrantedAt());
         return creditCard;
     }
 

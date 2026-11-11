@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * Tarjeta de crédito, para clientes personales o empresariales. El límite de crédito define cuánto
@@ -16,6 +17,11 @@ public class CreditCard {
     @Setter private String id;
     private final Customer customer;
     private final BigDecimal creditLimit;
+
+    /**
+     * Fecha en que se otorgó la tarjeta.
+     */
+    @Setter private LocalDate grantedAt;
 
     /**
      * Crea la tarjeta validando su límite de crédito.

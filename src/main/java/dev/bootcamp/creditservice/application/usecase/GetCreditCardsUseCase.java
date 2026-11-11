@@ -27,4 +27,11 @@ public interface GetCreditCardsUseCase {
      * @return la tarjeta; error {@link NotFoundException} si no existe
      */
     Single<CreditCard> findById(String id);
+
+    /**
+     * Lista todas las tarjetas de crédito del banco; lo usa transaction-service para los reportes.
+     *
+     * @return todos los productos de este tipo; ninguno si no hay
+     */
+    Flowable<CreditCard> findAll();
 }

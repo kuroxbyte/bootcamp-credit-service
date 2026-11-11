@@ -11,11 +11,16 @@ import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -40,7 +45,16 @@ class CreateCreditUseCaseImplTest {
 
     @Mock private CustomerClient customerClient;
 
-    @InjectMocks private CreateCreditUseCaseImpl useCase;
+    private CreateCreditUseCaseImpl useCase;
+
+    /**
+     * Reloj fijo: la fecha de otorgamiento es 2026-11-15.
+     */
+    @BeforeEach
+    void createUseCase() {
+        Clock clock = Clock.fixed(Instant.parse("2026-11-15T10:00:00Z"), ZoneOffset.UTC);
+        useCase = new CreateCreditUseCaseImpl(creditRepository, customerClient, clock);
+    }
 
     private void givenSaveReturnsCredit() {
         when(creditRepository.save(any())).thenAnswer(inv -> Single.just(inv.getArgument(0)));
@@ -107,5 +121,14 @@ class CreateCreditUseCaseImplTest {
         verify(customerClient).findById("2");
         verify(creditRepository).save(any(Credit.class));
         verifyNoMoreInteractions(customerClient, creditRepository);
+    }
+
+    @Test
+    void setsGrantedDateToToday() {
+        when(customerClient.findById("2")).thenReturn(Maybe.just(BUSINESS));
+        when(creditRepository.save(any())).thenAnswer(inv -> Single.just(inv.getArgument(0)));
+
+        useCase.execute("2", CreditType.BUSINESS).test()
+                .assertValue(credit -> credit.getGrantedAt().equals(LocalDate.of(2026, 11, 15)));
     }
 }

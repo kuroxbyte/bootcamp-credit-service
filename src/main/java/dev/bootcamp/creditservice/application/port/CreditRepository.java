@@ -33,4 +33,9 @@ public interface CreditRepository {
      * Guarda el crédito y lo emite con su id asignado.
      */
     Single<Credit> save(Credit credit);
+
+    /**
+     * Todos los créditos del banco.
+     */
+    Flowable<Credit> findAll();
 }

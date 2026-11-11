@@ -38,4 +38,10 @@ public class CreditCardPersistenceAdapter implements CreditCardRepository {
                 .doOnSuccess(saved -> log.debug("Credit card saved creditCardId={}", saved.getId()))
                 .map(CreditPersistenceMapper::toDomain);
     }
+
+    @Override
+    public Flowable<CreditCard> findAll() {
+        return Flowable.fromPublisher(mongoRepository.findAll())
+                .map(CreditPersistenceMapper::toDomain);
+    }
 }

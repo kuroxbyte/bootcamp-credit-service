@@ -49,4 +49,14 @@ class GetCreditsUseCaseImplTest {
 
         useCase.findById("99").test().assertError(NotFoundException.class);
     }
+
+    @Test
+    void listsAllProductsOfTheBank() {
+        Credit product = new Credit(
+                    new Customer("2", CustomerType.BUSINESS, CustomerProfile.STANDARD),
+                    CreditType.BUSINESS);
+        when(creditRepository.findAll()).thenReturn(Flowable.just(product));
+
+        useCase.findAll().test().assertValues(product);
+    }
 }

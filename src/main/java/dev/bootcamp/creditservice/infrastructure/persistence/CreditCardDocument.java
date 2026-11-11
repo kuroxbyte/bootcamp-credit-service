@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * Tarjeta de crédito tal como se guarda en la colección {@code credit_cards}.
@@ -32,4 +33,6 @@ public class CreditCardDocument {
 
     @Field(targetType = FieldType.DECIMAL128)
     private final BigDecimal creditLimit;
+
+    private final LocalDate grantedAt;
 }

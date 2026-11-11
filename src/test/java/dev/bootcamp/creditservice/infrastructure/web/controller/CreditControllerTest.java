@@ -19,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.time.LocalDate;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -38,6 +40,7 @@ class CreditControllerTest {
                 new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
                 CreditType.PERSONAL);
         credit.setId("5");
+        credit.setGrantedAt(LocalDate.of(2026, 11, 15));
         return credit;
     }
 
@@ -165,5 +168,20 @@ class CreditControllerTest {
                 .exchange()
                 .expectStatus()
                 .isEqualTo(503);
+    }
+
+    @Test
+    void listsAllForReportsWithGrantedDate() {
+        when(getCreditsUseCase.findAll()).thenReturn(Flowable.just(personalCredit()));
+
+        webTestClient
+                .get()
+                .uri("/api/v1/internal/credits")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$[0].grantedAt")
+                .isEqualTo("2026-11-15");
     }
 }

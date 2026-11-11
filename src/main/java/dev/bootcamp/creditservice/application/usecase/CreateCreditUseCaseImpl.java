@@ -8,21 +8,28 @@ import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import io.reactivex.rxjava3.core.Single;
 
+import java.time.Clock;
+import java.time.LocalDate;
+
 /**
  * Implementación de {@link CreateCreditUseCase}.
  */
 public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     private final CreditRepository creditRepository;
     private final CustomerClient customerClient;
+    private final Clock clock;
 
     /**
-     * Crea el caso de uso con los adaptadores de sus puertos.
+     * Crea el caso de uso con los adaptadores de sus puertos y el reloj que fija la fecha de
+     * otorgamiento.
      */
     public CreateCreditUseCaseImpl(
             CreditRepository creditRepository,
-            CustomerClient customerClient) {
+            CustomerClient customerClient,
+            Clock clock) {
         this.creditRepository = creditRepository;
         this.customerClient = customerClient;
+        this.clock = clock;
     }
 
     @Override
@@ -32,7 +39,10 @@ public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
                 .switchIfEmpty(Single.error(() -> new NotFoundException("El cliente no existe")))
                 .map(customer -> new Credit(customer, type))
                 .flatMap(this::validateOnePersonalCreditPerCustomer)
-                .flatMap(creditRepository::save);
+                .flatMap(credit -> {
+                    credit.setGrantedAt(LocalDate.now(clock));
+                    return creditRepository.save(credit);
+                });
     }
 
     // Personal: solo un crédito por persona. Empresarial: sin límite.

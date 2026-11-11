@@ -17,6 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mongodb.MongoDBContainer;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,5 +121,23 @@ class CreditPersistenceAdaptersTest {
                 .awaitDone(5, TimeUnit.SECONDS)
                 .assertComplete()
                 .assertNoValues();
+    }
+
+    @Test
+    void keepsGrantedDateAndFindsAllProducts() {
+        Credit credit = new Credit(BUSINESS, CreditType.BUSINESS);
+        credit.setGrantedAt(LocalDate.of(2026, 11, 15));
+        creditAdapter.save(credit).blockingGet();
+        creditAdapter.save(new Credit(PERSONAL, CreditType.PERSONAL)).blockingGet();
+        CreditCard card = new CreditCard(PERSONAL, new BigDecimal("500"));
+        card.setGrantedAt(LocalDate.of(2026, 11, 14));
+        creditCardAdapter.save(card).blockingGet();
+
+        assertThat(creditAdapter.findAll().toList().blockingGet())
+                .extracting(Credit::getGrantedAt)
+                .containsExactlyInAnyOrder(LocalDate.of(2026, 11, 15), null);
+        assertThat(creditCardAdapter.findAll().toList().blockingGet())
+                .extracting(CreditCard::getGrantedAt)
+                .containsExactly(LocalDate.of(2026, 11, 14));
     }
 }

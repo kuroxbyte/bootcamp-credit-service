@@ -45,4 +45,10 @@ public class CreditPersistenceAdapter implements CreditRepository {
                 .doOnSuccess(saved -> log.debug("Credit saved creditId={}", saved.getId()))
                 .map(CreditPersistenceMapper::toDomain);
     }
+
+    @Override
+    public Flowable<Credit> findAll() {
+        return Flowable.fromPublisher(mongoRepository.findAll())
+                .map(CreditPersistenceMapper::toDomain);
+    }
 }

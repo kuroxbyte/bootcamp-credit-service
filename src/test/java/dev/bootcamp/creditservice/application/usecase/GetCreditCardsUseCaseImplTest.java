@@ -50,4 +50,14 @@ class GetCreditCardsUseCaseImplTest {
 
         useCase.findById("99").test().assertError(NotFoundException.class);
     }
+
+    @Test
+    void listsAllProductsOfTheBank() {
+        CreditCard product = new CreditCard(
+                    new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
+                    new BigDecimal("1000"));
+        when(creditCardRepository.findAll()).thenReturn(Flowable.just(product));
+
+        useCase.findAll().test().assertValues(product);
+    }
 }

@@ -54,6 +54,14 @@ public class CreditController implements CreditsApi {
     }
 
     @Override
+    public Mono<ResponseEntity<Flux<CreditResponseDto>>> listAllCredits(
+            ServerWebExchange exchange) {
+        log.debug("Listing all credits for reports");
+        return Mono.just(ResponseEntity.ok(
+                Flux.from(getCreditsUseCase.findAll()).map(CreditWebMapper::toResponse)));
+    }
+
+    @Override
     public Mono<ResponseEntity<Flux<CreditResponseDto>>> listCredits(
             String customerId,
             ServerWebExchange exchange) {

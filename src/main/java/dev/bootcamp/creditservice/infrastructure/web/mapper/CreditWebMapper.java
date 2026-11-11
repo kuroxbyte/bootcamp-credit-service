@@ -28,7 +28,8 @@ public final class CreditWebMapper {
         return new CreditResponseDto(
                 credit.getId(),
                 credit.getCustomer().id(),
-                CreditTypeDto.valueOf(credit.getType().name()));
+                CreditTypeDto.valueOf(credit.getType().name()),
+                credit.getGrantedAt());
     }
 
     /**
@@ -36,6 +37,9 @@ public final class CreditWebMapper {
      */
     public static CreditCardResponseDto toResponse(CreditCard creditCard) {
         return new CreditCardResponseDto(
-                creditCard.getId(), creditCard.getCustomer().id(), creditCard.getCreditLimit());
+                creditCard.getId(),
+                creditCard.getCustomer().id(),
+                creditCard.getCreditLimit(),
+                creditCard.getGrantedAt());
     }
 }

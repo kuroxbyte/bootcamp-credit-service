@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+
 /**
  * Crédito personal o empresarial tal como se guarda en la colección {@code credits}.
  */
@@ -30,4 +32,6 @@ public class CreditDocument {
      * PERSONAL o BUSINESS.
      */
     private final String type;
+
+    private final LocalDate grantedAt;
 }

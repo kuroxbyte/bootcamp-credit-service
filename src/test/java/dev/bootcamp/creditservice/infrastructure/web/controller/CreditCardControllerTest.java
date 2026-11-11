@@ -17,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -38,6 +39,7 @@ class CreditCardControllerTest {
                         new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
                         new BigDecimal("5000"));
         card.setId("7");
+        card.setGrantedAt(LocalDate.of(2026, 11, 15));
         return card;
     }
 
@@ -99,5 +101,20 @@ class CreditCardControllerTest {
                 .thenReturn(Single.error(new NotFoundException("La tarjeta de crédito no existe")));
 
         webTestClient.get().uri("/api/v1/credit-cards/99").exchange().expectStatus().isNotFound();
+    }
+
+    @Test
+    void listsAllForReportsWithGrantedDate() {
+        when(getCreditCardsUseCase.findAll()).thenReturn(Flowable.just(card()));
+
+        webTestClient
+                .get()
+                .uri("/api/v1/internal/credit-cards")
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .jsonPath("$[0].grantedAt")
+                .isEqualTo("2026-11-15");
     }
 }

@@ -38,7 +38,9 @@ public class CreditController implements CreditsApi {
                                         createCreditUseCase
                                                 .execute(
                                                         customerId,
-                                                        CreditWebMapper.toDomain(request.getType()))
+                                                        CreditWebMapper.toDomain(request.getType()),
+                                                        request.getAmount(),
+                                                        request.getDueDate())
                                                 .toFlowable()))
                 .doOnNext(
                         credit ->

@@ -1,8 +1,11 @@
 package dev.bootcamp.creditservice.infrastructure.config;
 
 import dev.bootcamp.creditservice.application.port.CreditCardRepository;
+import dev.bootcamp.creditservice.application.port.CreditEventPublisher;
 import dev.bootcamp.creditservice.application.port.CreditRepository;
 import dev.bootcamp.creditservice.application.port.CustomerClient;
+import dev.bootcamp.creditservice.application.port.CustomerDebtStatusRepository;
+import dev.bootcamp.creditservice.application.rule.OverdueDebtRule;
 import dev.bootcamp.creditservice.application.usecase.CreateCreditCardUseCase;
 import dev.bootcamp.creditservice.application.usecase.CreateCreditCardUseCaseImpl;
 import dev.bootcamp.creditservice.application.usecase.CreateCreditUseCase;
@@ -11,6 +14,8 @@ import dev.bootcamp.creditservice.application.usecase.GetCreditCardsUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditCardsUseCaseImpl;
 import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCaseImpl;
+import dev.bootcamp.creditservice.application.usecase.UpdateCustomerDebtStatusUseCase;
+import dev.bootcamp.creditservice.application.usecase.UpdateCustomerDebtStatusUseCaseImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,8 +43,15 @@ public class UseCaseConfig {
     public CreateCreditUseCase createCreditUseCase(
             CreditRepository creditRepository,
             CustomerClient customerClient,
+            OverdueDebtRule overdueDebtRule,
+            CreditEventPublisher creditEventPublisher,
             Clock clock) {
-        return new CreateCreditUseCaseImpl(creditRepository, customerClient, clock);
+        return new CreateCreditUseCaseImpl(
+                creditRepository,
+                customerClient,
+                overdueDebtRule,
+                creditEventPublisher,
+                clock);
     }
 
     /**
@@ -57,8 +69,15 @@ public class UseCaseConfig {
     public CreateCreditCardUseCase createCreditCardUseCase(
             CreditCardRepository creditCardRepository,
             CustomerClient customerClient,
+            OverdueDebtRule overdueDebtRule,
+            CreditEventPublisher creditEventPublisher,
             Clock clock) {
-        return new CreateCreditCardUseCaseImpl(creditCardRepository, customerClient, clock);
+        return new CreateCreditCardUseCaseImpl(
+                creditCardRepository,
+                customerClient,
+                overdueDebtRule,
+                creditEventPublisher,
+                clock);
     }
 
     /**
@@ -67,5 +86,23 @@ public class UseCaseConfig {
     @Bean
     public GetCreditCardsUseCase getCreditCardsUseCase(CreditCardRepository creditCardRepository) {
         return new GetCreditCardsUseCaseImpl(creditCardRepository);
+    }
+
+    /**
+     * Regla de deuda vencida que comparten todos los productos.
+     */
+    @Bean
+    public OverdueDebtRule overdueDebtRule(
+            CustomerDebtStatusRepository customerDebtStatusRepository) {
+        return new OverdueDebtRule(customerDebtStatusRepository);
+    }
+
+    /**
+     * Registra el caso de uso {@link UpdateCustomerDebtStatusUseCase}.
+     */
+    @Bean
+    public UpdateCustomerDebtStatusUseCase updateCustomerDebtStatusUseCase(
+            CustomerDebtStatusRepository customerDebtStatusRepository) {
+        return new UpdateCustomerDebtStatusUseCaseImpl(customerDebtStatusRepository);
     }
 }

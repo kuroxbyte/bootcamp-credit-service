@@ -36,7 +36,10 @@ public class CreditCardController implements CreditCardsApi {
                         request ->
                                 Mono.from(
                                         createCreditCardUseCase
-                                                .execute(customerId, request.getCreditLimit())
+                                                .execute(
+                                                        customerId,
+                                                        request.getCreditLimit(),
+                                                        request.getPaymentDueDay())
                                                 .toFlowable()))
                 .doOnNext(
                         card ->

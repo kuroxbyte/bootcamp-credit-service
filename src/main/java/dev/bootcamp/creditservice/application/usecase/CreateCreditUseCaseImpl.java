@@ -1,13 +1,16 @@
 package dev.bootcamp.creditservice.application.usecase;
 
+import dev.bootcamp.creditservice.application.port.CreditEventPublisher;
 import dev.bootcamp.creditservice.application.port.CreditRepository;
 import dev.bootcamp.creditservice.application.port.CustomerClient;
+import dev.bootcamp.creditservice.application.rule.OverdueDebtRule;
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
 import dev.bootcamp.creditservice.domain.model.credit.CreditType;
 import io.reactivex.rxjava3.core.Single;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 
@@ -17,32 +20,47 @@ import java.time.LocalDate;
 public class CreateCreditUseCaseImpl implements CreateCreditUseCase {
     private final CreditRepository creditRepository;
     private final CustomerClient customerClient;
+    private final OverdueDebtRule overdueDebtRule;
+    private final CreditEventPublisher creditEventPublisher;
     private final Clock clock;
 
     /**
-     * Crea el caso de uso con los adaptadores de sus puertos y el reloj que fija la fecha de
-     * otorgamiento.
+     * Crea el caso de uso con los adaptadores de sus puertos, la regla de deuda vencida y el
+     * reloj que fija la fecha de otorgamiento.
      */
     public CreateCreditUseCaseImpl(
             CreditRepository creditRepository,
             CustomerClient customerClient,
+            OverdueDebtRule overdueDebtRule,
+            CreditEventPublisher creditEventPublisher,
             Clock clock) {
         this.creditRepository = creditRepository;
         this.customerClient = customerClient;
+        this.overdueDebtRule = overdueDebtRule;
+        this.creditEventPublisher = creditEventPublisher;
         this.clock = clock;
     }
 
     @Override
-    public Single<Credit> execute(String customerId, CreditType type) {
+    public Single<Credit> execute(
+            String customerId,
+            CreditType type,
+            BigDecimal amount,
+            LocalDate dueDate) {
         return customerClient
                 .findById(customerId)
                 .switchIfEmpty(Single.error(() -> new NotFoundException("El cliente no existe")))
-                .map(customer -> new Credit(customer, type))
+                .flatMap(customer -> overdueDebtRule.verify(customerId)
+                        .andThen(Single.fromCallable(
+                                () -> new Credit(customer, type, amount, dueDate))))
                 .flatMap(this::validateOnePersonalCreditPerCustomer)
                 .flatMap(credit -> {
-                    credit.setGrantedAt(LocalDate.now(clock));
+                    credit.grant(LocalDate.now(clock));
                     return creditRepository.save(credit);
-                });
+                })
+                .flatMap(saved -> creditEventPublisher
+                        .publishCreditGranted(saved)
+                        .andThen(Single.just(saved)));
     }
 
     // Personal: solo un crédito por persona. Empresarial: sin límite.

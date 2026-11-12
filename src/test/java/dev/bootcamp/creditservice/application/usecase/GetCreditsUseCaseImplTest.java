@@ -15,6 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,7 +26,9 @@ class GetCreditsUseCaseImplTest {
     private static final Credit CREDIT =
             new Credit(
                     new Customer("2", CustomerType.BUSINESS, CustomerProfile.STANDARD),
-                    CreditType.BUSINESS);
+                    CreditType.BUSINESS,
+                    BigDecimal.TEN,
+                    LocalDate.of(2027, 1, 15));
 
     @Mock private CreditRepository creditRepository;
 
@@ -54,7 +59,9 @@ class GetCreditsUseCaseImplTest {
     void listsAllProductsOfTheBank() {
         Credit product = new Credit(
                     new Customer("2", CustomerType.BUSINESS, CustomerProfile.STANDARD),
-                    CreditType.BUSINESS);
+                    CreditType.BUSINESS,
+                    BigDecimal.TEN,
+                    LocalDate.of(2027, 1, 15));
         when(creditRepository.findAll()).thenReturn(Flowable.just(product));
 
         useCase.findAll().test().assertValues(product);

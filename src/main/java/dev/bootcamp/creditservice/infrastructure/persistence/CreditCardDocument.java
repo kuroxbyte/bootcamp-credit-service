@@ -34,5 +34,10 @@ public class CreditCardDocument {
     @Field(targetType = FieldType.DECIMAL128)
     private final BigDecimal creditLimit;
 
+    /**
+     * Día del mes (1 a 28) hasta el que se pagan los consumos del mes anterior.
+     */
+    private final int paymentDueDay;
+
     private final LocalDate grantedAt;
 }

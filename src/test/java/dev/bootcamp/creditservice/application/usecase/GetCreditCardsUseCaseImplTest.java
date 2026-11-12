@@ -24,7 +24,8 @@ class GetCreditCardsUseCaseImplTest {
     private static final CreditCard CARD =
             new CreditCard(
                     new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
-                    new BigDecimal("1000"));
+                    new BigDecimal("1000"),
+                    15);
 
     @Mock private CreditCardRepository creditCardRepository;
 
@@ -55,7 +56,8 @@ class GetCreditCardsUseCaseImplTest {
     void listsAllProductsOfTheBank() {
         CreditCard product = new CreditCard(
                     new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
-                    new BigDecimal("1000"));
+                    new BigDecimal("1000"),
+                    15);
         when(creditCardRepository.findAll()).thenReturn(Flowable.just(product));
 
         useCase.findAll().test().assertValues(product);

@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +38,8 @@ class CreditCardControllerTest {
         CreditCard card =
                 new CreditCard(
                         new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
-                        new BigDecimal("5000"));
+                        new BigDecimal("5000"),
+                        15);
         card.setId("7");
         card.setGrantedAt(LocalDate.of(2026, 11, 15));
         return card;
@@ -45,7 +47,7 @@ class CreditCardControllerTest {
 
     @Test
     void grantsCreditCard() {
-        when(createCreditCardUseCase.execute("1", new BigDecimal("5000")))
+        when(createCreditCardUseCase.execute("1", new BigDecimal("5000"), 15))
                 .thenReturn(Single.just(card()));
 
         webTestClient
@@ -53,7 +55,7 @@ class CreditCardControllerTest {
                 .uri("/api/v1/credit-cards")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"creditLimit\":5000}")
+                .bodyValue("{\"creditLimit\":5000,\"paymentDueDay\":15}")
                 .exchange()
                 .expectStatus()
                 .isCreated()
@@ -71,12 +73,12 @@ class CreditCardControllerTest {
                 .uri("/api/v1/credit-cards")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"creditLimit\":0}")
+                .bodyValue("{\"creditLimit\":0,\"paymentDueDay\":15}")
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
 
-        verify(createCreditCardUseCase, never()).execute(any(), any());
+        verify(createCreditCardUseCase, never()).execute(any(), any(), anyInt());
     }
 
     @Test

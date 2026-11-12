@@ -10,6 +10,23 @@ spring:
       enabled: false
   mongodb:
     uri: mongodb://localhost:27017/credit_test_db
+  kafka:
+    bootstrap-servers: localhost:9092
+    admin:
+      # Las pruebas no crean tópicos ni esperan a un broker.
+      auto-create: false
+    listener:
+      # El consumidor se prueba directamente, sin broker.
+      auto-startup: false
+
+messaging:
+  topics:
+    credit-events: credit-events
+    debt-events: debt-events
+
+cache:
+  debt-status:
+    ttl: 10m
 
 clients:
   customer-service:

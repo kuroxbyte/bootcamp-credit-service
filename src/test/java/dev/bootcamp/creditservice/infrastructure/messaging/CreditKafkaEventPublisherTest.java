@@ -82,6 +82,7 @@ class CreditKafkaEventPublisherTest {
         assertThat(event.get("dueDate").asString()).isEqualTo("2027-01-15");
         assertThat(event.get("grantedAt").asString()).isEqualTo("2026-11-15");
         assertThat(event.get("occurredAt").asString()).isEqualTo("2026-11-15T10:00:00Z");
+        assertThat(event.get("eventId").asString()).hasSize(36);
     }
 
     @Test

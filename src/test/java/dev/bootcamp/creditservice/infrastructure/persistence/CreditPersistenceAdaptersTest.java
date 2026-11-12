@@ -54,7 +54,12 @@ class CreditPersistenceAdaptersTest {
 
     @Test
     void savesAndFindsCredit() {
-        Credit saved = creditAdapter.save(new Credit(PERSONAL, CreditType.PERSONAL)).blockingGet();
+        Credit saved = creditAdapter.save(
+                new Credit(
+                        PERSONAL,
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15))).blockingGet();
 
         Credit found = creditAdapter.findById(saved.getId()).blockingGet();
         assertThat(found.getType()).isEqualTo(CreditType.PERSONAL);
@@ -63,7 +68,12 @@ class CreditPersistenceAdaptersTest {
 
     @Test
     void detectsExistingPersonalCreditOfCustomer() {
-        creditAdapter.save(new Credit(PERSONAL, CreditType.PERSONAL)).blockingGet();
+        creditAdapter.save(
+                new Credit(
+                        PERSONAL,
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15))).blockingGet();
 
         creditAdapter
                 .existsByCustomerIdAndType("c1", CreditType.PERSONAL)
@@ -79,9 +89,24 @@ class CreditPersistenceAdaptersTest {
 
     @Test
     void findsCreditsByCustomer() {
-        creditAdapter.save(new Credit(BUSINESS, CreditType.BUSINESS)).blockingGet();
-        creditAdapter.save(new Credit(BUSINESS, CreditType.BUSINESS)).blockingGet();
-        creditAdapter.save(new Credit(PERSONAL, CreditType.PERSONAL)).blockingGet();
+        creditAdapter.save(
+                new Credit(
+                        BUSINESS,
+                        CreditType.BUSINESS,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15))).blockingGet();
+        creditAdapter.save(
+                new Credit(
+                        BUSINESS,
+                        CreditType.BUSINESS,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15))).blockingGet();
+        creditAdapter.save(
+                new Credit(
+                        PERSONAL,
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15))).blockingGet();
 
         creditAdapter
                 .findByCustomerId("c2")
@@ -94,7 +119,7 @@ class CreditPersistenceAdaptersTest {
     void savesAndFindsCreditCardWithLimit() {
         CreditCard saved =
                 creditCardAdapter
-                        .save(new CreditCard(BUSINESS, new BigDecimal("5000.75")))
+                        .save(new CreditCard(BUSINESS, new BigDecimal("5000.75"), 15))
                         .blockingGet();
 
         CreditCard found = creditCardAdapter.findById(saved.getId()).blockingGet();
@@ -125,11 +150,20 @@ class CreditPersistenceAdaptersTest {
 
     @Test
     void keepsGrantedDateAndFindsAllProducts() {
-        Credit credit = new Credit(BUSINESS, CreditType.BUSINESS);
+        Credit credit = new Credit(
+                BUSINESS,
+                CreditType.BUSINESS,
+                BigDecimal.TEN,
+                LocalDate.of(2027, 1, 15));
         credit.setGrantedAt(LocalDate.of(2026, 11, 15));
         creditAdapter.save(credit).blockingGet();
-        creditAdapter.save(new Credit(PERSONAL, CreditType.PERSONAL)).blockingGet();
-        CreditCard card = new CreditCard(PERSONAL, new BigDecimal("500"));
+        creditAdapter.save(
+                new Credit(
+                        PERSONAL,
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15))).blockingGet();
+        CreditCard card = new CreditCard(PERSONAL, new BigDecimal("500"), 15);
         card.setGrantedAt(LocalDate.of(2026, 11, 14));
         creditCardAdapter.save(card).blockingGet();
 

@@ -20,6 +20,8 @@ final class CreditPersistenceMapper {
                 credit.getCustomer().type().name(),
                 credit.getCustomer().profile().name(),
                 credit.getType().name(),
+                credit.getAmount(),
+                credit.getDueDate(),
                 credit.getGrantedAt());
     }
 
@@ -30,6 +32,7 @@ final class CreditPersistenceMapper {
                 creditCard.getCustomer().type().name(),
                 creditCard.getCustomer().profile().name(),
                 creditCard.getCreditLimit(),
+                creditCard.getPaymentDueDay(),
                 creditCard.getGrantedAt());
     }
 
@@ -40,7 +43,9 @@ final class CreditPersistenceMapper {
                                 document.getCustomerId(),
                                 document.getCustomerType(),
                                 document.getCustomerProfile()),
-                        CreditType.valueOf(document.getType()));
+                        CreditType.valueOf(document.getType()),
+                        document.getAmount(),
+                        document.getDueDate());
         credit.setId(document.getId());
         credit.setGrantedAt(document.getGrantedAt());
         return credit;
@@ -53,7 +58,8 @@ final class CreditPersistenceMapper {
                                 document.getCustomerId(),
                                 document.getCustomerType(),
                                 document.getCustomerProfile()),
-                        document.getCreditLimit());
+                        document.getCreditLimit(),
+                        document.getPaymentDueDay());
         creditCard.setId(document.getId());
         creditCard.setGrantedAt(document.getGrantedAt());
         return creditCard;

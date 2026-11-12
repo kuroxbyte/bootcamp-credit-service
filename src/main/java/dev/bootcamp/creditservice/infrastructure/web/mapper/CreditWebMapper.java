@@ -29,6 +29,8 @@ public final class CreditWebMapper {
                 credit.getId(),
                 credit.getCustomer().id(),
                 CreditTypeDto.valueOf(credit.getType().name()),
+                credit.getAmount(),
+                credit.getDueDate(),
                 credit.getGrantedAt());
     }
 
@@ -40,6 +42,7 @@ public final class CreditWebMapper {
                 creditCard.getId(),
                 creditCard.getCustomer().id(),
                 creditCard.getCreditLimit(),
+                creditCard.getPaymentDueDay(),
                 creditCard.getGrantedAt());
     }
 }

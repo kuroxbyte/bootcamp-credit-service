@@ -17,6 +17,10 @@ import java.math.BigDecimal;
  *   <li>Se otorga a clientes personales o empresariales.
  *   <li>El límite de crédito debe ser mayor a 0; define cuánto puede consumir el cliente.
  *   <li>No se exige que el cliente tenga una cuenta bancaria en la institución.
+ *   <li>El cliente no puede tener deuda vencida en ningún producto de crédito.
+ *   <li>El día de pago está entre 1 y 28: los consumos de un mes se pagan hasta ese día del mes
+ *       siguiente.
+ *   <li>Al otorgarla publica el evento {@code CreditCardGranted}.
  * </ul>
  *
  * <p>Es reactivo: no hace nada hasta que se suscribe al {@link Single}. Termina con error {@link
@@ -31,8 +35,10 @@ public interface CreateCreditCardUseCase {
      *
      * @param customerId id del cliente en customer-service
      * @param creditLimit límite de crédito de la tarjeta
+     * @param paymentDueDay día de pago mensual (1 a 28)
      * @return la tarjeta guardada; error {@link NotFoundException} si el cliente no existe; {@link
-     *     BusinessRuleException} si el límite de crédito no es mayor a 0
+     *     BusinessRuleException} si el cliente tiene deuda vencida, el límite de crédito no es
+     *     mayor a 0 o el día de pago no está entre 1 y 28
      */
-    Single<CreditCard> execute(String customerId, BigDecimal creditLimit);
+    Single<CreditCard> execute(String customerId, BigDecimal creditLimit, int paymentDueDay);
 }

@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +30,9 @@ import static org.mockito.Mockito.when;
 @WebFluxTest(CreditController.class)
 class CreditControllerTest {
 
+    private static final String PERSONAL_CREDIT_REQUEST =
+            "{\"type\":\"PERSONAL\",\"amount\":10,\"dueDate\":\"2027-01-15\"}";
+
     @Autowired private WebTestClient webTestClient;
 
     @MockitoBean private CreateCreditUseCase createCreditUseCase;
@@ -38,7 +42,9 @@ class CreditControllerTest {
     private static Credit personalCredit() {
         Credit credit = new Credit(
                 new Customer("1", CustomerType.PERSONAL, CustomerProfile.STANDARD),
-                CreditType.PERSONAL);
+                CreditType.PERSONAL,
+                BigDecimal.TEN,
+                LocalDate.of(2027, 1, 15));
         credit.setId("5");
         credit.setGrantedAt(LocalDate.of(2026, 11, 15));
         return credit;
@@ -46,7 +52,12 @@ class CreditControllerTest {
 
     @Test
     void grantsCredit() {
-        when(createCreditUseCase.execute("1", CreditType.PERSONAL))
+        when(
+                createCreditUseCase.execute(
+                        "1",
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15)))
                 .thenReturn(Single.just(personalCredit()));
 
         webTestClient
@@ -54,7 +65,7 @@ class CreditControllerTest {
                 .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"type\":\"PERSONAL\"}")
+                .bodyValue(PERSONAL_CREDIT_REQUEST)
                 .exchange()
                 .expectStatus()
                 .isCreated()
@@ -74,17 +85,22 @@ class CreditControllerTest {
                 .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"type\":\"CREDIT_CARD\"}")
+                .bodyValue("{\"type\":\"CREDIT_CARD\",\"amount\":10,\"dueDate\":\"2027-01-15\"}")
                 .exchange()
                 .expectStatus()
                 .isBadRequest();
 
-        verify(createCreditUseCase, never()).execute(any(), any());
+        verify(createCreditUseCase, never()).execute(any(), any(), any(), any());
     }
 
     @Test
     void returnsUnprocessableForSecondPersonalCredit() {
-        when(createCreditUseCase.execute("1", CreditType.PERSONAL))
+        when(
+                createCreditUseCase.execute(
+                        "1",
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15)))
                 .thenReturn(
                         Single.error(
                                 new BusinessRuleException(
@@ -95,7 +111,7 @@ class CreditControllerTest {
                 .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"type\":\"PERSONAL\"}")
+                .bodyValue(PERSONAL_CREDIT_REQUEST)
                 .exchange()
                 .expectStatus()
                 .isEqualTo(422)
@@ -105,7 +121,12 @@ class CreditControllerTest {
 
     @Test
     void returnsNotFoundWhenCustomerDoesNotExist() {
-        when(createCreditUseCase.execute("99", CreditType.PERSONAL))
+        when(
+                createCreditUseCase.execute(
+                        "99",
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15)))
                 .thenReturn(Single.error(new NotFoundException("El cliente no existe")));
 
         webTestClient
@@ -113,7 +134,7 @@ class CreditControllerTest {
                 .uri("/api/v1/credits")
                 .header("X-Customer-Id", "99")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"type\":\"PERSONAL\"}")
+                .bodyValue(PERSONAL_CREDIT_REQUEST)
                 .exchange()
                 .expectStatus()
                 .isNotFound();
@@ -152,7 +173,12 @@ class CreditControllerTest {
 
     @Test
     void returnsServiceUnavailableWhenCustomerServiceIsDown() {
-        when(createCreditUseCase.execute("1", CreditType.PERSONAL))
+        when(
+                createCreditUseCase.execute(
+                        "1",
+                        CreditType.PERSONAL,
+                        BigDecimal.TEN,
+                        LocalDate.of(2027, 1, 15)))
                 .thenReturn(
                         Single.error(
                                 new ServiceUnavailableException(
@@ -164,7 +190,7 @@ class CreditControllerTest {
                 .uri("/api/v1/credits")
                 .header("X-Customer-Id", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"type\":\"PERSONAL\"}")
+                .bodyValue(PERSONAL_CREDIT_REQUEST)
                 .exchange()
                 .expectStatus()
                 .isEqualTo(503);

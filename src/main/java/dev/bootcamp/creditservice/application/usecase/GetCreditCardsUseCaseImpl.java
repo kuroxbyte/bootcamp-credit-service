@@ -5,19 +5,14 @@ import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Implementación de {@link GetCreditCardsUseCase}.
  */
+@RequiredArgsConstructor
 public class GetCreditCardsUseCaseImpl implements GetCreditCardsUseCase {
     private final CreditCardRepository creditCardRepository;
-
-    /**
-     * Crea el caso de uso con los adaptadores de sus puertos.
-     */
-    public GetCreditCardsUseCaseImpl(CreditCardRepository creditCardRepository) {
-        this.creditCardRepository = creditCardRepository;
-    }
 
     @Override
     public Flowable<CreditCard> findByCustomerId(String customerId) {

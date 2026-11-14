@@ -174,4 +174,26 @@ class CreditPersistenceAdaptersTest {
                 .extracting(CreditCard::getGrantedAt)
                 .containsExactly(LocalDate.of(2026, 11, 14));
     }
+
+    @Test
+    void closedProductsLeaveTheCustomerListsAndFreeThePersonalCredit() {
+        Credit credit = new Credit(
+                PERSONAL, CreditType.PERSONAL, BigDecimal.TEN, LocalDate.of(2027, 1, 15));
+        credit.setGrantedAt(LocalDate.of(2026, 11, 15));
+        Credit saved = creditAdapter.save(credit).blockingGet();
+        saved.close(LocalDate.of(2027, 1, 10));
+        creditAdapter.save(saved).blockingGet();
+        CreditCard card = creditCardAdapter
+                .save(new CreditCard(PERSONAL, new BigDecimal("1000"), 15)).blockingGet();
+        card.close(LocalDate.of(2027, 1, 10));
+        creditCardAdapter.save(card).blockingGet();
+
+        assertThat(creditAdapter.findByCustomerId("c1").toList().blockingGet()).isEmpty();
+        assertThat(creditCardAdapter.findByCustomerId("c1").toList().blockingGet()).isEmpty();
+        assertThat(creditAdapter.existsByCustomerIdAndType("c1", CreditType.PERSONAL)
+                .blockingGet()).isFalse();
+        assertThat(creditAdapter.findById(saved.getId()).blockingGet().getClosedAt())
+                .isEqualTo(LocalDate.of(2027, 1, 10));
+        assertThat(creditCardAdapter.findById(card.getId()).blockingGet().isClosed()).isTrue();
+    }
 }

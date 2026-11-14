@@ -2,11 +2,14 @@ package dev.bootcamp.creditservice.infrastructure.web.controller;
 
 import dev.bootcamp.creditservice.application.usecase.CreateCreditCardUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditCardsUseCase;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditCardUseCase;
 import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.creditcard.CreditCard;
 import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
+import dev.bootcamp.creditservice.infrastructure.client.ServiceUnavailableException;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import org.junit.jupiter.api.Test;
@@ -33,6 +36,8 @@ class CreditCardControllerTest {
     @MockitoBean private CreateCreditCardUseCase createCreditCardUseCase;
 
     @MockitoBean private GetCreditCardsUseCase getCreditCardsUseCase;
+
+    @MockitoBean private UpdateCreditCardUseCase updateCreditCardUseCase;
 
     private static CreditCard card() {
         CreditCard card =
@@ -118,5 +123,36 @@ class CreditCardControllerTest {
                 .expectBody()
                 .jsonPath("$[0].grantedAt")
                 .isEqualTo("2026-11-15");
+    }
+
+    @Test
+    void changesLimitAndDueDayForAdmin() {
+        when(updateCreditCardUseCase.update("7", new BigDecimal("8000"), 20))
+                .thenReturn(Single.just(card()));
+
+        webTestClient.put().uri("/api/v1/credit-cards/7")
+                .header("X-Admin-Id", "admin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"creditLimit\":8000,\"paymentDueDay\":20}")
+                .exchange()
+                .expectStatus().isOk();
+        webTestClient.put().uri("/api/v1/credit-cards/7")
+                .header("X-Admin-Id", "admin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"creditLimit\":8000,\"paymentDueDay\":30}")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void closesCardOrReportsUnavailableTransactionService() {
+        when(updateCreditCardUseCase.close("7")).thenReturn(Completable.complete());
+        when(updateCreditCardUseCase.close("8")).thenReturn(Completable.error(
+                new ServiceUnavailableException("transaction-service no está disponible", null)));
+
+        webTestClient.delete().uri("/api/v1/credit-cards/7").header("X-Admin-Id", "admin")
+                .exchange().expectStatus().isNoContent();
+        webTestClient.delete().uri("/api/v1/credit-cards/8").header("X-Admin-Id", "admin")
+                .exchange().expectStatus().isEqualTo(503);
     }
 }

@@ -11,12 +11,12 @@ import io.reactivex.rxjava3.core.Single;
  */
 public interface CreditRepository {
     /**
-     * Indica si el cliente ya tiene un crédito del tipo indicado.
+     * Indica si el cliente ya tiene un crédito activo del tipo indicado.
      */
     Single<Boolean> existsByCustomerIdAndType(String customerId, CreditType type);
 
     /**
-     * Busca el recurso por su id.
+     * Busca el crédito por su id, aunque esté dado de baja.
      *
      * @return el crédito, o vacío si no existe
      */
@@ -25,7 +25,7 @@ public interface CreditRepository {
     /**
      * Busca los productos del cliente.
      *
-     * @return los créditos del cliente (ninguno si no tiene)
+     * @return los créditos activos del cliente (ninguno si no tiene)
      */
     Flowable<Credit> findByCustomerId(String customerId);
 
@@ -35,7 +35,7 @@ public interface CreditRepository {
     Single<Credit> save(Credit credit);
 
     /**
-     * Todos los créditos del banco.
+     * Todos los créditos del banco, también los dados de baja.
      */
     Flowable<Credit> findAll();
 }

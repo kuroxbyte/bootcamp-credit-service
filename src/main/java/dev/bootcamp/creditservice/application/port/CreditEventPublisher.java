@@ -22,4 +22,32 @@ public interface CreditEventPublisher {
      * @return termina cuando se publicó, o sin error si no se pudo (el adaptador lo registra)
      */
     Completable publishCreditCardGranted(CreditCard creditCard);
+
+    /**
+     * Publica que cambió la fecha de vencimiento de un crédito.
+     *
+     * @return termina cuando se publicó, o sin error si no se pudo (el adaptador lo registra)
+     */
+    Completable publishCreditUpdated(Credit credit);
+
+    /**
+     * Publica que cambiaron el límite o el día de pago de una tarjeta.
+     *
+     * @return termina cuando se publicó, o sin error si no se pudo (el adaptador lo registra)
+     */
+    Completable publishCreditCardUpdated(CreditCard creditCard);
+
+    /**
+     * Publica que se dio de baja un crédito.
+     *
+     * @return termina cuando se publicó, o sin error si no se pudo (el adaptador lo registra)
+     */
+    Completable publishCreditClosed(Credit credit);
+
+    /**
+     * Publica que se dio de baja una tarjeta de crédito.
+     *
+     * @return termina cuando se publicó, o sin error si no se pudo (el adaptador lo registra)
+     */
+    Completable publishCreditCardClosed(CreditCard creditCard);
 }

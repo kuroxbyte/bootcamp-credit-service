@@ -21,13 +21,23 @@ public class GetCreditsUseCaseImpl implements GetCreditsUseCase {
 
     @Override
     public Single<Credit> findById(String id) {
-        return creditRepository
-                .findById(id)
-                .switchIfEmpty(Single.error(() -> new NotFoundException("El crédito no existe")));
+        return findActive(creditRepository, id);
     }
 
     @Override
     public Flowable<Credit> findAll() {
         return creditRepository.findAll();
+    }
+
+    /**
+     * Busca un crédito activo.
+     *
+     * @return el crédito; error {@link NotFoundException} si no existe o fue dado de baja
+     */
+    static Single<Credit> findActive(CreditRepository creditRepository, String creditId) {
+        return creditRepository
+                .findById(creditId)
+                .filter(credit -> !credit.isClosed())
+                .switchIfEmpty(Single.error(() -> new NotFoundException("El crédito no existe")));
     }
 }

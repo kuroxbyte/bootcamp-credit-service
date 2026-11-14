@@ -82,7 +82,7 @@ paths:
       tags: [Credits]
       operationId: getCreditById
       summary: Consultar un crédito
-      description: Uso interno; transaction-service lo usa para validar al dueño del crédito.
+      description: Uso interno; transaction-service lo usa para validar al dueño del crédito. Un crédito dado de baja responde 404.
       parameters:
         - $ref: '#/components/parameters/CreditId'
       responses:
@@ -94,6 +94,56 @@ paths:
                 $ref: '#/components/schemas/CreditResponse'
         '404':
           $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Credits]
+      operationId: updateCredit
+      summary: Modificar un crédito
+      description: >-
+        Solo para empleados (rol ADMIN). Cambia la fecha de vencimiento (refinanciación); debe ser posterior al otorgamiento. El monto y el tipo no cambian. Publica CreditUpdated y debt-service recalcula la deuda vencida.
+      parameters:
+        - $ref: '#/components/parameters/CreditId'
+        - $ref: '#/components/parameters/XAdminId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditUpdateRequest'
+      responses:
+        '200':
+          description: Producto modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags: [Credits]
+      operationId: deleteCredit
+      summary: Dar de baja un crédito
+      description: >-
+        Solo para empleados. Baja lógica: el crédito guarda su fecha de baja y deja de listarse y de aceptar pagos. Solo si ya está pagado por completo (se consultan sus pagos en transaction-service). Publica CreditClosed.
+      parameters:
+        - $ref: '#/components/parameters/CreditId'
+        - $ref: '#/components/parameters/XAdminId'
+      responses:
+        '204':
+          description: Producto dado de baja
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /api/v1/credit-cards:
     get:
       tags: [CreditCards]
@@ -161,7 +211,7 @@ paths:
       tags: [CreditCards]
       operationId: getCreditCardById
       summary: Consultar una tarjeta de crédito
-      description: Uso interno; transaction-service lo usa para validar al dueño y el límite de crédito.
+      description: Uso interno; transaction-service lo usa para validar al dueño y el límite de crédito. Una tarjeta dada de baja responde 404.
       parameters:
         - $ref: '#/components/parameters/CreditCardId'
       responses:
@@ -173,6 +223,56 @@ paths:
                 $ref: '#/components/schemas/CreditCardResponse'
         '404':
           $ref: '#/components/responses/NotFound'
+    put:
+      tags: [CreditCards]
+      operationId: updateCreditCard
+      summary: Modificar una tarjeta de crédito
+      description: >-
+        Solo para empleados (rol ADMIN). Reemplaza el límite de crédito (mayor a 0 y no menor que la deuda actual, que se consulta en transaction-service) y el día de pago (1 a 28). Publica CreditCardUpdated.
+      parameters:
+        - $ref: '#/components/parameters/CreditCardId'
+        - $ref: '#/components/parameters/XAdminId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCardUpdateRequest'
+      responses:
+        '200':
+          description: Producto modificado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditCardResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+    delete:
+      tags: [CreditCards]
+      operationId: deleteCreditCard
+      summary: Dar de baja una tarjeta de crédito
+      description: >-
+        Solo para empleados. Baja lógica: la tarjeta guarda su fecha de baja y deja de listarse y de aceptar consumos y pagos. Solo si no tiene deuda (disponible igual al límite, según transaction-service). Publica CreditCardClosed.
+      parameters:
+        - $ref: '#/components/parameters/CreditCardId'
+        - $ref: '#/components/parameters/XAdminId'
+      responses:
+        '204':
+          description: Producto dado de baja
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/BusinessRuleViolation'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
 components:
   parameters:
     XCustomerId:
@@ -180,6 +280,13 @@ components:
       in: header
       required: true
       description: Id del cliente que realiza la operación. Lo establece el API Gateway con el claim sub del JWT; el valor que envía el cliente se descarta
+      schema:
+        type: string
+    XAdminId:
+      name: X-Admin-Id
+      in: header
+      required: true
+      description: Usuario del empleado; lo envía el API Gateway con el claim sub de un token ADMIN
       schema:
         type: string
     CreditId:
@@ -242,6 +349,33 @@ components:
           format: date
           description: Fecha de otorgamiento
           example: '2026-11-15'
+        closedAt:
+          type: string
+          format: date
+          description: Fecha de baja; solo la tienen los productos dados de baja, que únicamente aparecen en el listado interno
+          example: '2027-01-10'
+    CreditUpdateRequest:
+      type: object
+      required: [dueDate]
+      properties:
+        dueDate:
+          type: string
+          format: date
+          description: Nueva fecha de vencimiento
+          example: '2028-05-15'
+    CreditCardUpdateRequest:
+      type: object
+      required: [creditLimit, paymentDueDay]
+      properties:
+        creditLimit:
+          type: number
+          example: 8000.00
+        paymentDueDay:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 28
+          example: 20
     CreditCardRequest:
       type: object
       required: [creditLimit, paymentDueDay]
@@ -281,6 +415,11 @@ components:
           format: date
           description: Fecha de otorgamiento
           example: '2026-11-15'
+        closedAt:
+          type: string
+          format: date
+          description: Fecha de baja; solo la tienen los productos dados de baja, que únicamente aparecen en el listado interno
+          example: '2027-01-10'
     Problem:
       type: object
       description: Detalle de error (RFC 7807)
@@ -324,7 +463,7 @@ components:
           schema:
             $ref: '#/components/schemas/Problem'
     ServiceUnavailable:
-      description: customer-service no está disponible
+      description: customer-service o transaction-service no está disponible
       content:
         application/problem+json:
           schema:

@@ -2,6 +2,7 @@ package dev.bootcamp.creditservice.infrastructure.web.controller;
 
 import dev.bootcamp.creditservice.application.usecase.CreateCreditUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCase;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditUseCase;
 import dev.bootcamp.creditservice.domain.exception.BusinessRuleException;
 import dev.bootcamp.creditservice.domain.exception.NotFoundException;
 import dev.bootcamp.creditservice.domain.model.credit.Credit;
@@ -10,6 +11,7 @@ import dev.bootcamp.creditservice.domain.model.customer.Customer;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerProfile;
 import dev.bootcamp.creditservice.domain.model.customer.CustomerType;
 import dev.bootcamp.creditservice.infrastructure.client.ServiceUnavailableException;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,8 @@ class CreditControllerTest {
     @MockitoBean private CreateCreditUseCase createCreditUseCase;
 
     @MockitoBean private GetCreditsUseCase getCreditsUseCase;
+
+    @MockitoBean private UpdateCreditUseCase updateCreditUseCase;
 
     private static Credit personalCredit() {
         Credit credit = new Credit(
@@ -209,5 +213,42 @@ class CreditControllerTest {
                 .expectBody()
                 .jsonPath("$[0].grantedAt")
                 .isEqualTo("2026-11-15");
+    }
+
+    @Test
+    void refinancesCreditForAdmin() {
+        when(updateCreditUseCase.update("5", LocalDate.of(2028, 5, 15)))
+                .thenReturn(Single.just(personalCredit()));
+
+        webTestClient.put().uri("/api/v1/credits/5")
+                .header("X-Admin-Id", "admin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"dueDate\":\"2028-05-15\"}")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.id").isEqualTo("5");
+    }
+
+    @Test
+    void closesCreditOrExplainsWhyNot() {
+        when(updateCreditUseCase.close("5")).thenReturn(Completable.complete());
+        when(updateCreditUseCase.close("6"))
+                .thenReturn(Completable.error(new BusinessRuleException("Tiene deuda")));
+
+        webTestClient.delete().uri("/api/v1/credits/5").header("X-Admin-Id", "admin")
+                .exchange().expectStatus().isNoContent();
+        webTestClient.delete().uri("/api/v1/credits/6").header("X-Admin-Id", "admin")
+                .exchange().expectStatus().isEqualTo(422);
+    }
+
+    @Test
+    void showsClosingDateInTheInternalList() {
+        Credit closed = personalCredit();
+        closed.close(LocalDate.of(2027, 1, 10));
+        when(getCreditsUseCase.findAll()).thenReturn(Flowable.just(closed));
+
+        webTestClient.get().uri("/api/v1/internal/credits").exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$[0].closedAt").isEqualTo("2027-01-10");
     }
 }

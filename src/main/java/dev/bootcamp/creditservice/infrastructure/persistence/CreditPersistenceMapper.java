@@ -22,7 +22,8 @@ final class CreditPersistenceMapper {
                 credit.getType().name(),
                 credit.getAmount(),
                 credit.getDueDate(),
-                credit.getGrantedAt());
+                credit.getGrantedAt(),
+                credit.getClosedAt());
     }
 
     static CreditCardDocument toDocument(CreditCard creditCard) {
@@ -33,7 +34,8 @@ final class CreditPersistenceMapper {
                 creditCard.getCustomer().profile().name(),
                 creditCard.getCreditLimit(),
                 creditCard.getPaymentDueDay(),
-                creditCard.getGrantedAt());
+                creditCard.getGrantedAt(),
+                creditCard.getClosedAt());
     }
 
     static Credit toDomain(CreditDocument document) {
@@ -48,6 +50,7 @@ final class CreditPersistenceMapper {
                         document.getDueDate());
         credit.setId(document.getId());
         credit.setGrantedAt(document.getGrantedAt());
+        credit.setClosedAt(document.getClosedAt());
         return credit;
     }
 
@@ -62,6 +65,7 @@ final class CreditPersistenceMapper {
                         document.getPaymentDueDay());
         creditCard.setId(document.getId());
         creditCard.setGrantedAt(document.getGrantedAt());
+        creditCard.setClosedAt(document.getClosedAt());
         return creditCard;
     }
 

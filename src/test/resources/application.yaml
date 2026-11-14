@@ -32,6 +32,8 @@ clients:
   customer-service:
     base-url: http://customer-service
     timeout: 3s
+  transaction-service:
+    base-url: http://transaction-service
 
 eureka:
   client:

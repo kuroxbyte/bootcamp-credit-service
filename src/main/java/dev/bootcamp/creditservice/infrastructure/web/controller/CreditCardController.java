@@ -2,9 +2,11 @@ package dev.bootcamp.creditservice.infrastructure.web.controller;
 
 import dev.bootcamp.creditservice.application.usecase.CreateCreditCardUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditCardsUseCase;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditCardUseCase;
 import dev.bootcamp.creditservice.infrastructure.web.api.CreditCardsApi;
 import dev.bootcamp.creditservice.infrastructure.web.dto.CreditCardRequestDto;
 import dev.bootcamp.creditservice.infrastructure.web.dto.CreditCardResponseDto;
+import dev.bootcamp.creditservice.infrastructure.web.dto.CreditCardUpdateRequestDto;
 import dev.bootcamp.creditservice.infrastructure.web.mapper.CreditWebMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class CreditCardController implements CreditCardsApi {
 
     private final CreateCreditCardUseCase createCreditCardUseCase;
     private final GetCreditCardsUseCase getCreditCardsUseCase;
+    private final UpdateCreditCardUseCase updateCreditCardUseCase;
 
     @Override
     public Mono<ResponseEntity<CreditCardResponseDto>> createCreditCard(
@@ -79,5 +82,41 @@ public class CreditCardController implements CreditCardsApi {
         log.debug("Fetching credit card creditCardId={}", creditCardId);
         return Mono.from(getCreditCardsUseCase.findById(creditCardId).toFlowable())
                 .map(card -> ResponseEntity.ok(CreditWebMapper.toResponse(card)));
+    }
+
+    @Override
+    public Mono<ResponseEntity<CreditCardResponseDto>> updateCreditCard(
+            String creditCardId,
+            String adminId,
+            Mono<CreditCardUpdateRequestDto> creditCardUpdateRequestDto,
+            ServerWebExchange exchange) {
+        return creditCardUpdateRequestDto
+                .flatMap(request -> Mono.from(updateCreditCardUseCase
+                        .update(
+                                creditCardId,
+                                request.getCreditLimit(),
+                                request.getPaymentDueDay())
+                        .toFlowable()))
+                .doOnNext(card -> log.info(
+                        "Credit card updated creditCardId={} creditLimit={} adminId={}",
+                        creditCardId,
+                        card.getCreditLimit(),
+                        adminId))
+                .map(card -> ResponseEntity.ok(CreditWebMapper.toResponse(card)));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deleteCreditCard(
+            String creditCardId,
+            String adminId,
+            ServerWebExchange exchange) {
+        return Mono.from(updateCreditCardUseCase.close(creditCardId).toFlowable())
+                .then(Mono.fromCallable(() -> {
+                    log.info(
+                            "Credit card closed creditCardId={} adminId={}",
+                            creditCardId,
+                            adminId);
+                    return ResponseEntity.noContent().<Void>build();
+                }));
     }
 }

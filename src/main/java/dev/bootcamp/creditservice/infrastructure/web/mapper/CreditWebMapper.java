@@ -31,7 +31,8 @@ public final class CreditWebMapper {
                 CreditTypeDto.valueOf(credit.getType().name()),
                 credit.getAmount(),
                 credit.getDueDate(),
-                credit.getGrantedAt());
+                credit.getGrantedAt())
+                .closedAt(credit.getClosedAt());
     }
 
     /**
@@ -43,6 +44,7 @@ public final class CreditWebMapper {
                 creditCard.getCustomer().id(),
                 creditCard.getCreditLimit(),
                 creditCard.getPaymentDueDay(),
-                creditCard.getGrantedAt());
+                creditCard.getGrantedAt())
+                .closedAt(creditCard.getClosedAt());
     }
 }

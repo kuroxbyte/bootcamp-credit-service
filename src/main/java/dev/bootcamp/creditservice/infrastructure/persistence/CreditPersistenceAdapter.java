@@ -22,8 +22,8 @@ public class CreditPersistenceAdapter implements CreditRepository {
 
     @Override
     public Single<Boolean> existsByCustomerIdAndType(String customerId, CreditType type) {
-        return Single.fromPublisher(
-                mongoRepository.existsByCustomerIdAndType(customerId, type.name()));
+        return Single.fromPublisher(mongoRepository
+                .existsByCustomerIdAndTypeAndClosedAtIsNull(customerId, type.name()));
     }
 
     @Override
@@ -34,7 +34,7 @@ public class CreditPersistenceAdapter implements CreditRepository {
 
     @Override
     public Flowable<Credit> findByCustomerId(String customerId) {
-        return Flowable.fromPublisher(mongoRepository.findByCustomerId(customerId))
+        return Flowable.fromPublisher(mongoRepository.findByCustomerIdAndClosedAtIsNull(customerId))
                 .map(CreditPersistenceMapper::toDomain);
     }
 

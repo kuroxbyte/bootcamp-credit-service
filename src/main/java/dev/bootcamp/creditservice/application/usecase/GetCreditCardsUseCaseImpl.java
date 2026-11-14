@@ -21,15 +21,26 @@ public class GetCreditCardsUseCaseImpl implements GetCreditCardsUseCase {
 
     @Override
     public Single<CreditCard> findById(String id) {
-        return creditCardRepository
-                .findById(id)
-                .switchIfEmpty(
-                        Single.error(
-                                () -> new NotFoundException("La tarjeta de crédito no existe")));
+        return findActive(creditCardRepository, id);
     }
 
     @Override
     public Flowable<CreditCard> findAll() {
         return creditCardRepository.findAll();
+    }
+
+    /**
+     * Busca una tarjeta activa.
+     *
+     * @return la tarjeta; error {@link NotFoundException} si no existe o fue dada de baja
+     */
+    static Single<CreditCard> findActive(
+            CreditCardRepository creditCardRepository,
+            String creditCardId) {
+        return creditCardRepository
+                .findById(creditCardId)
+                .filter(card -> !card.isClosed())
+                .switchIfEmpty(Single.error(
+                        () -> new NotFoundException("La tarjeta de crédito no existe")));
     }
 }

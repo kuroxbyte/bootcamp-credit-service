@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 public interface CreditCardMongoRepository
         extends ReactiveMongoRepository<CreditCardDocument, String> {
     /**
-     * Busca los productos del cliente.
+     * Busca las tarjetas activas (sin fecha de baja) del cliente.
      */
-    Flux<CreditCardDocument> findByCustomerId(String customerId);
+    Flux<CreditCardDocument> findByCustomerIdAndClosedAtIsNull(String customerId);
 }

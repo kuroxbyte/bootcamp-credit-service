@@ -33,6 +33,11 @@ public class Credit {
     @Setter private LocalDate grantedAt;
 
     /**
+     * Fecha de baja; null mientras el producto está activo.
+     */
+    @Setter private LocalDate closedAt;
+
+    /**
      * Crea el crédito validando sus reglas.
      *
      * @throws BusinessRuleException si el tipo de cliente no puede recibir este crédito, el monto
@@ -70,5 +75,37 @@ public class Credit {
                     "La fecha de vencimiento debe ser posterior a la fecha de otorgamiento");
         }
         this.grantedAt = today;
+    }
+
+    /**
+     * Indica si el producto fue dado de baja.
+     */
+    public boolean isClosed() {
+        return closedAt != null;
+    }
+
+    /**
+     * Da de baja el producto (baja lógica: conserva sus datos y su historial de pagos).
+     */
+    public void close(LocalDate today) {
+        this.closedAt = today;
+    }
+
+    /**
+     * Crea el mismo crédito con otra fecha de vencimiento (refinanciación). Conserva el id, el
+     * monto y las fechas de otorgamiento y de baja.
+     *
+     * @throws BusinessRuleException si la nueva fecha falta o no es posterior al otorgamiento
+     */
+    public Credit withDueDate(LocalDate newDueDate) {
+        Credit updated = new Credit(customer, type, amount, newDueDate);
+        if (!newDueDate.isAfter(grantedAt)) {
+            throw new BusinessRuleException(
+                    "La fecha de vencimiento debe ser posterior a la fecha de otorgamiento");
+        }
+        updated.setId(id);
+        updated.setGrantedAt(grantedAt);
+        updated.setClosedAt(closedAt);
+        return updated;
     }
 }

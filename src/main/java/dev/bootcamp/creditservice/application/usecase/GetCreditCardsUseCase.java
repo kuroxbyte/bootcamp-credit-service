@@ -24,7 +24,7 @@ public interface GetCreditCardsUseCase {
      * Consulta un producto por su id.
      *
      * @param id id del producto
-     * @return la tarjeta; error {@link NotFoundException} si no existe
+     * @return la tarjeta; error {@link NotFoundException} si no existe o fue dada de baja
      */
     Single<CreditCard> findById(String id);
 

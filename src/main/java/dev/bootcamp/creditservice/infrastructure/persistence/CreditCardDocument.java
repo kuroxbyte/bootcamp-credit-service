@@ -40,4 +40,9 @@ public class CreditCardDocument {
     private final int paymentDueDay;
 
     private final LocalDate grantedAt;
+
+    /**
+     * Fecha de baja; no se guarda mientras el producto está activo.
+     */
+    private final LocalDate closedAt;
 }

@@ -29,6 +29,11 @@ public class CreditCard {
     @Setter private LocalDate grantedAt;
 
     /**
+     * Fecha de baja; null mientras el producto está activo.
+     */
+    @Setter private LocalDate closedAt;
+
+    /**
      * Crea la tarjeta validando su límite de crédito y su día de pago.
      *
      * @throws BusinessRuleException si el límite de crédito no es mayor a 0 o el día de pago no
@@ -48,5 +53,33 @@ public class CreditCard {
         this.customer = customer;
         this.creditLimit = creditLimit;
         this.paymentDueDay = paymentDueDay;
+    }
+
+    /**
+     * Indica si el producto fue dado de baja.
+     */
+    public boolean isClosed() {
+        return closedAt != null;
+    }
+
+    /**
+     * Da de baja el producto (baja lógica: conserva sus datos y su historial de pagos).
+     */
+    public void close(LocalDate today) {
+        this.closedAt = today;
+    }
+
+    /**
+     * Crea la misma tarjeta con otro límite de crédito y otro día de pago, validados como al
+     * otorgarla. Conserva el id y las fechas de otorgamiento y de baja.
+     *
+     * @throws BusinessRuleException si el límite no es mayor a 0 o el día no está entre 1 y 28
+     */
+    public CreditCard withTerms(BigDecimal newCreditLimit, int newPaymentDueDay) {
+        CreditCard updated = new CreditCard(customer, newCreditLimit, newPaymentDueDay);
+        updated.setId(id);
+        updated.setGrantedAt(grantedAt);
+        updated.setClosedAt(closedAt);
+        return updated;
     }
 }

@@ -2,9 +2,11 @@ package dev.bootcamp.creditservice.infrastructure.web.controller;
 
 import dev.bootcamp.creditservice.application.usecase.CreateCreditUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCase;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditUseCase;
 import dev.bootcamp.creditservice.infrastructure.web.api.CreditsApi;
 import dev.bootcamp.creditservice.infrastructure.web.dto.CreditRequestDto;
 import dev.bootcamp.creditservice.infrastructure.web.dto.CreditResponseDto;
+import dev.bootcamp.creditservice.infrastructure.web.dto.CreditUpdateRequestDto;
 import dev.bootcamp.creditservice.infrastructure.web.mapper.CreditWebMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class CreditController implements CreditsApi {
 
     private final CreateCreditUseCase createCreditUseCase;
     private final GetCreditsUseCase getCreditsUseCase;
+    private final UpdateCreditUseCase updateCreditUseCase;
 
     @Override
     public Mono<ResponseEntity<CreditResponseDto>> createCredit(
@@ -81,5 +84,35 @@ public class CreditController implements CreditsApi {
         log.debug("Fetching credit creditId={}", creditId);
         return Mono.from(getCreditsUseCase.findById(creditId).toFlowable())
                 .map(credit -> ResponseEntity.ok(CreditWebMapper.toResponse(credit)));
+    }
+
+    @Override
+    public Mono<ResponseEntity<CreditResponseDto>> updateCredit(
+            String creditId,
+            String adminId,
+            Mono<CreditUpdateRequestDto> creditUpdateRequestDto,
+            ServerWebExchange exchange) {
+        return creditUpdateRequestDto
+                .flatMap(request -> Mono.from(updateCreditUseCase
+                        .update(creditId, request.getDueDate())
+                        .toFlowable()))
+                .doOnNext(credit -> log.info(
+                        "Credit updated creditId={} dueDate={} adminId={}",
+                        creditId,
+                        credit.getDueDate(),
+                        adminId))
+                .map(credit -> ResponseEntity.ok(CreditWebMapper.toResponse(credit)));
+    }
+
+    @Override
+    public Mono<ResponseEntity<Void>> deleteCredit(
+            String creditId,
+            String adminId,
+            ServerWebExchange exchange) {
+        return Mono.from(updateCreditUseCase.close(creditId).toFlowable())
+                .then(Mono.fromCallable(() -> {
+                    log.info("Credit closed creditId={} adminId={}", creditId, adminId);
+                    return ResponseEntity.noContent().<Void>build();
+                }));
     }
 }

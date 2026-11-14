@@ -22,9 +22,10 @@ import java.util.UUID;
  * La clave de cada mensaje es el id del cliente, para que sus eventos lleguen en orden. El
  * contrato está en {@code docs/events/asyncapi.yaml} del repositorio raíz.
  *
- * <p>Si Kafka no responde ({@code max.block.ms}, 1 s en config-repo), el error se registra y el
- * otorgamiento no falla: el evento se pierde (limitación conocida; evitarla requiere el patrón
- * outbox).
+ * <p>Publica el otorgamiento, la modificación y la baja de créditos y tarjetas, siempre con el
+ * estado completo del producto. Si Kafka no responde ({@code max.block.ms}, 1 s en config-repo),
+ * el error se registra y la operación no falla: el evento se pierde (limitación conocida;
+ * evitarla requiere el patrón outbox).
  */
 @Slf4j
 @Component
@@ -51,8 +52,38 @@ public class CreditKafkaEventPublisher implements CreditEventPublisher {
 
     @Override
     public Completable publishCreditGranted(Credit credit) {
+        return publishCredit("CreditGranted", credit);
+    }
+
+    @Override
+    public Completable publishCreditUpdated(Credit credit) {
+        return publishCredit("CreditUpdated", credit);
+    }
+
+    @Override
+    public Completable publishCreditClosed(Credit credit) {
+        return publishCredit("CreditClosed", credit);
+    }
+
+    @Override
+    public Completable publishCreditCardGranted(CreditCard creditCard) {
+        return publishCreditCard("CreditCardGranted", creditCard);
+    }
+
+    @Override
+    public Completable publishCreditCardUpdated(CreditCard creditCard) {
+        return publishCreditCard("CreditCardUpdated", creditCard);
+    }
+
+    @Override
+    public Completable publishCreditCardClosed(CreditCard creditCard) {
+        return publishCreditCard("CreditCardClosed", creditCard);
+    }
+
+    // Evento con el estado completo del crédito.
+    private Completable publishCredit(String eventType, Credit credit) {
         Map<String, Object> event = new LinkedHashMap<>();
-        event.put("eventType", "CreditGranted");
+        event.put("eventType", eventType);
         event.put("creditId", credit.getId());
         event.put("customerId", credit.getCustomer().id());
         event.put("creditType", credit.getType().name());
@@ -62,10 +93,10 @@ public class CreditKafkaEventPublisher implements CreditEventPublisher {
         return publish(credit.getCustomer().id(), event);
     }
 
-    @Override
-    public Completable publishCreditCardGranted(CreditCard creditCard) {
+    // Evento con el estado completo de la tarjeta.
+    private Completable publishCreditCard(String eventType, CreditCard creditCard) {
         Map<String, Object> event = new LinkedHashMap<>();
-        event.put("eventType", "CreditCardGranted");
+        event.put("eventType", eventType);
         event.put("creditCardId", creditCard.getId());
         event.put("customerId", creditCard.getCustomer().id());
         event.put("creditLimit", creditCard.getCreditLimit());

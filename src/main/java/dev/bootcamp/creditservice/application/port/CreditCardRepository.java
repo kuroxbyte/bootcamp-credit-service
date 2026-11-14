@@ -11,7 +11,7 @@ import io.reactivex.rxjava3.core.Single;
 public interface CreditCardRepository {
 
     /**
-     * Busca el recurso por su id.
+     * Busca la tarjeta por su id, aunque esté dada de baja.
      *
      * @return la tarjeta, o vacío si no existe
      */
@@ -20,7 +20,7 @@ public interface CreditCardRepository {
     /**
      * Busca los productos del cliente.
      *
-     * @return las tarjetas del cliente (ninguna si no tiene)
+     * @return las tarjetas activas del cliente (ninguna si no tiene)
      */
     Flowable<CreditCard> findByCustomerId(String customerId);
 
@@ -30,7 +30,7 @@ public interface CreditCardRepository {
     Single<CreditCard> save(CreditCard creditCard);
 
     /**
-     * Todas las tarjetas de crédito del banco.
+     * Todas las tarjetas de crédito del banco, también las dadas de baja.
      */
     Flowable<CreditCard> findAll();
 }

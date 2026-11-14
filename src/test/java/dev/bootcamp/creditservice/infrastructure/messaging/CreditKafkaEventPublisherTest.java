@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -113,5 +114,32 @@ class CreditKafkaEventPublisherTest {
         publisher.publishCreditCardGranted(card).test().awaitDone(
                 2,
                 TimeUnit.SECONDS).assertComplete();
+    }
+
+    @Test
+    void publishesUpdatesAndClosingsWithTheWholeProduct() {
+        when(kafkaTemplate.send(eq("credit-events"), eq("c1"), anyString()))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        Credit credit = new Credit(
+                CUSTOMER, CreditType.BUSINESS, BigDecimal.TEN, LocalDate.of(2027, 1, 15));
+        credit.setId("k1");
+        credit.setGrantedAt(LocalDate.of(2026, 11, 15));
+        CreditCard card = new CreditCard(CUSTOMER, new BigDecimal("1000"), 15);
+        card.setId("t1");
+        card.setGrantedAt(LocalDate.of(2026, 11, 15));
+
+        publisher.publishCreditUpdated(credit).blockingAwait();
+        publisher.publishCreditClosed(credit).blockingAwait();
+        publisher.publishCreditCardUpdated(card).blockingAwait();
+        publisher.publishCreditCardClosed(card).blockingAwait();
+
+        ArgumentCaptor<String> json = ArgumentCaptor.forClass(String.class);
+        verify(kafkaTemplate, times(4)).send(eq("credit-events"), eq("c1"), json.capture());
+        assertThat(json.getAllValues())
+                .extracting(value -> jsonMapper.readTree(value).get("eventType").asString())
+                .containsExactly(
+                        "CreditUpdated", "CreditClosed", "CreditCardUpdated", "CreditCardClosed");
+        assertThat(jsonMapper.readTree(json.getAllValues().get(0)).get("dueDate").asString())
+                .isEqualTo("2027-01-15");
     }
 }

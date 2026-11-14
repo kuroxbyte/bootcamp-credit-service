@@ -1,6 +1,7 @@
 package dev.bootcamp.creditservice.infrastructure.config;
 
 import dev.bootcamp.creditservice.application.port.CreditCardRepository;
+import dev.bootcamp.creditservice.application.port.CreditDebtClient;
 import dev.bootcamp.creditservice.application.port.CreditEventPublisher;
 import dev.bootcamp.creditservice.application.port.CreditRepository;
 import dev.bootcamp.creditservice.application.port.CustomerClient;
@@ -14,6 +15,10 @@ import dev.bootcamp.creditservice.application.usecase.GetCreditCardsUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditCardsUseCaseImpl;
 import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCase;
 import dev.bootcamp.creditservice.application.usecase.GetCreditsUseCaseImpl;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditCardUseCase;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditCardUseCaseImpl;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditUseCase;
+import dev.bootcamp.creditservice.application.usecase.UpdateCreditUseCaseImpl;
 import dev.bootcamp.creditservice.application.usecase.UpdateCustomerDebtStatusUseCase;
 import dev.bootcamp.creditservice.application.usecase.UpdateCustomerDebtStatusUseCaseImpl;
 import org.springframework.context.annotation.Bean;
@@ -104,5 +109,37 @@ public class UseCaseConfig {
     public UpdateCustomerDebtStatusUseCase updateCustomerDebtStatusUseCase(
             CustomerDebtStatusRepository customerDebtStatusRepository) {
         return new UpdateCustomerDebtStatusUseCaseImpl(customerDebtStatusRepository);
+    }
+
+    /**
+     * Registra el caso de uso {@link UpdateCreditUseCase}.
+     */
+    @Bean
+    public UpdateCreditUseCase updateCreditUseCase(
+            CreditRepository creditRepository,
+            CreditDebtClient creditDebtClient,
+            CreditEventPublisher creditEventPublisher,
+            Clock clock) {
+        return new UpdateCreditUseCaseImpl(
+                creditRepository,
+                creditDebtClient,
+                creditEventPublisher,
+                clock);
+    }
+
+    /**
+     * Registra el caso de uso {@link UpdateCreditCardUseCase}.
+     */
+    @Bean
+    public UpdateCreditCardUseCase updateCreditCardUseCase(
+            CreditCardRepository creditCardRepository,
+            CreditDebtClient creditDebtClient,
+            CreditEventPublisher creditEventPublisher,
+            Clock clock) {
+        return new UpdateCreditCardUseCaseImpl(
+                creditCardRepository,
+                creditDebtClient,
+                creditEventPublisher,
+                clock);
     }
 }

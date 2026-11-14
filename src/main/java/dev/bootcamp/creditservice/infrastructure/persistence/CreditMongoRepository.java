@@ -9,12 +9,12 @@ import reactor.core.publisher.Mono;
  */
 public interface CreditMongoRepository extends ReactiveMongoRepository<CreditDocument, String> {
     /**
-     * Busca los productos del cliente.
+     * Busca los créditos activos (sin fecha de baja) del cliente.
      */
-    Flux<CreditDocument> findByCustomerId(String customerId);
+    Flux<CreditDocument> findByCustomerIdAndClosedAtIsNull(String customerId);
 
     /**
-     * Indica si el cliente ya tiene un crédito del tipo indicado.
+     * Indica si el cliente ya tiene un crédito activo del tipo indicado.
      */
-    Mono<Boolean> existsByCustomerIdAndType(String customerId, String type);
+    Mono<Boolean> existsByCustomerIdAndTypeAndClosedAtIsNull(String customerId, String type);
 }
